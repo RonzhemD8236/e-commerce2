@@ -1,0 +1,57 @@
+<?php
+session_start();
+include('../includes/header.php');
+include('../includes/config.php');
+//CREATE VIEW  salesPerOrder as SELECT o.orderinfo_id, SUM(i.sell_price * ol.quantity), o.status FROM orderinfo o INNER JOIN orderline ol using (orderinfo_id) INNER JOIN item i USING (item_id)
+// GROUP BY o.orderinfo_id;
+// $sql = "SELECT o.orderinfo_id as orderId, SUM(i.sell_price * ol.quantity) as total FROM orderinfo o INNER JOIN orderline ol using (orderinfo_id) INNER JOIN item i USING (item_id)
+// GROUP BY o.orderinfo_id";
+
+//order details
+
+
+$sql = "SELECT 
+            o.orderinfo_id AS orderId, 
+            SUM(i.sell_price * ol.quantity) AS total, 
+            o.status 
+        FROM orderinfo o 
+        INNER JOIN orderline ol USING (orderinfo_id) 
+        INNER JOIN item i USING (item_id)
+        GROUP BY o.orderinfo_id
+        ORDER BY total DESC";
+$result = mysqli_query($conn, $sql);
+$itemCount = mysqli_num_rows($result);
+
+?>
+<h2>number of items <?= $itemCount ?> </h2>
+<?php include("../includes/alert.php"); ?>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>{$row['orderId']}</td>";
+        echo "<td>{$row['total']}</td>";
+
+        $statusColor = ($row['status'] === 'Delivered') ? 'green' : 'red';
+        echo "<td style='color: $statusColor'>{$row['status']}</td>";
+
+        $eyeColor = ($row['status'] === 'Delivered') ? 'gray' : 'blue';
+        echo "<td><a href='orderDetails.php?orderinfo_id={$row['orderId']}'><i class='fa-regular fa-eye' style='color: $eyeColor'></i></a></td>";
+
+        echo "</tr>";
+    }
+    ?>
+    </tbody>
+</table>
+<?php
+include('../includes/footer.php');
+?>
