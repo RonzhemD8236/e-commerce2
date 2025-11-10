@@ -7,18 +7,22 @@ if (isset($_POST['submit'])) {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-    $sql = "SELECT id, email, password, role FROM users WHERE email=? LIMIT 1";
+    $sql = "SELECT id, email, password, role, active FROM users WHERE email=? LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($user_id, $user_email, $hashed_password, $role);
+    $stmt->bind_result($user_id, $user_email, $hashed_password, $role, $active);
 
     if ($stmt->num_rows === 1) {
         $stmt->fetch();
 
-        // Verify password using password_verify
-        if (password_verify($password, $hashed_password)) {
+        // Check if user is active
+        if (!$active) {
+            $_SESSION['message'] = 'Your account has been deactivated. Please contact admin.';
+        } 
+        // Verify password if active
+        else if (password_verify($password, $hashed_password)) {
             $_SESSION['email'] = $user_email;
             $_SESSION['user_id'] = $user_id;
             $_SESSION['role'] = $role;
