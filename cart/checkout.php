@@ -68,7 +68,7 @@ try {
     // Show confirmation
     echo "<h2>✅ Thank you! Your order has been placed.</h2>";
     echo "<p>Order ID: {$orderinfo_id}</p>";
-    echo '<p><a href="../index.php">Continue Shopping</a></p>';
+    echo '<p><a href="/lensify/e-commerce2/index.php">Continue Shopping</a></p>';
 
 } catch (Exception $e) {
     // Rollback transaction on error

@@ -17,12 +17,9 @@ if (isset($_POST['submit'])) {
     if ($stmt->num_rows === 1) {
         $stmt->fetch();
 
-        // Check if user is active
         if (!$active) {
             $_SESSION['message'] = 'Your account has been deactivated. Please contact admin.';
-        } 
-        // Verify password if active
-        else if (password_verify($password, $hashed_password)) {
+        } else if (password_verify($password, $hashed_password)) {
             $_SESSION['email'] = $user_email;
             $_SESSION['user_id'] = $user_id;
             $_SESSION['role'] = $role;
@@ -37,18 +34,21 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-<div class="row col-md-8 mx-auto ">
+<br>
+<div class="row col-md-8 mx-auto">
     <?php include("../includes/alert.php"); ?>
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
-        <div class="form-outline mb-4">
-            <br>
+        <div class="mb-3">
             <label class="form-label">Email address</label>
             <input type="email" class="form-control" name="email" required />
         </div>
 
-        <div class="form-outline mb-4">
+        <div class="mb-3 position-relative">
             <label class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" required />
+            <input type="password" class="form-control" id="password" name="password" required>
+            <span id="togglePassword" style="position:absolute; top:35px; right:10px; cursor:pointer;">
+                <i class="bi bi-eye"></i>
+            </span>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block mb-4" name="submit">Sign in</button>
@@ -58,5 +58,22 @@ if (isset($_POST['submit'])) {
         </div>
     </form>
 </div>
+
+<!-- Bootstrap Icons CDN for eye icon -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<script>
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordField = document.getElementById('password');
+    const icon = this.querySelector('i');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+});
+</script>
 
 <?php include("../includes/footer.php"); ?>

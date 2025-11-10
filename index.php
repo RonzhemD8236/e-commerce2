@@ -12,7 +12,7 @@ if (isset($_SESSION["cart_products"]) && count($_SESSION["cart_products"]) > 0) 
     max-height:70vh; overflow-y:auto; font-size:15px; z-index:999;">';
 
     echo '<h3>Your Shopping Cart</h3>';
-    echo '<form method="POST" action="/shop/cart/cart_update.php">';
+    echo '<form method="POST" action="/lensify/e-commerce2/cart/cart_update.php">';
     echo '<table width="100%" cellpadding="6" cellspacing="0">';
     echo '<tbody>';
     $total = 0;
@@ -87,7 +87,7 @@ if (isset($_SESSION["cart_products"]) && count($_SESSION["cart_products"]) > 0) 
 echo '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">';
 echo '<strong style="font-size: 16px;">Total: ₱' . number_format($total, 2) . '</strong>';
 echo '<div style="display: flex; gap: 6px;">';
-echo '<a href="/shop/cart/view_cart.php"><button type="button" class="btn btn-success btn-sm">Checkout</button></a>';
+echo '<a href="/lensify/e-commerce2/cart/view_cart.php"><button type="button" class="btn btn-success btn-sm">Checkout</button></a>';
 echo '<button type="submit" name="update_cart" class="btn btn-primary btn-sm" style="margin-right: 45px;">Update Cart</button>';
 echo '<button type="submit" name="remove_items" class="btn btn-danger btn-sm" >Remove</button>';
 echo '</div>';

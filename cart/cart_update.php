@@ -23,7 +23,7 @@ if (isset($_POST["type"]) && $_POST["type"] === 'add' && isset($_POST["item_qty"
         $_SESSION["cart_products"][$item_id] = $new_product;
     }
 
-    header("Location: ../index.php");
+    header("Location: /lensify/e-commerce2/index.php");
     exit();
 }
 
@@ -57,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    header("Location: ../index.php");
+    header("Location: /lensify/e-commerce2/index.php");
     exit();
 }
 
 // ---------------------- FALLBACK ----------------------
-header("Location: ../index.php");
+header("Location: /lensify/e-commerce2/index.php");
 exit();

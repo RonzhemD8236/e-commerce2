@@ -54,8 +54,12 @@ $result = mysqli_query($conn, $sql);
                     <td><?= $row['active'] ? 'Active' : 'Inactive' ?></td>
                     <td><?= htmlspecialchars($row['created_at']) ?></td>
                     <td>
-                        <!-- Edit Button -->
-                        <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
+                        <!-- Edit Button (only if user is active) -->
+                        <?php if ($row['active']): ?>
+                            <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
+                        <?php else: ?>
+                            <button class="btn btn-sm btn-secondary" disabled>Edit</button>
+                        <?php endif; ?>
 
                         <!-- Activate/Deactivate Button -->
                         <?php if ($row['active']): ?>
@@ -64,11 +68,7 @@ $result = mysqli_query($conn, $sql);
                                    class="btn btn-sm btn-danger" 
                                    onclick="return confirm('Deactivate this user?');">Deactivate</a>
                             <?php else: ?>
-                                <a href="#" 
-                                   class="btn btn-sm btn-secondary disabled" 
-                                   style="pointer-events: none; opacity: 0.7; cursor: not-allowed;">
-                                   Deactivate
-                                </a>
+                                <button class="btn btn-sm btn-secondary" disabled>Deactivate</button>
                             <?php endif; ?>
                         <?php else: ?>
                             <a href="toggle_status.php?id=<?= $row['id'] ?>" 
