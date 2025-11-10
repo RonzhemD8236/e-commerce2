@@ -6,8 +6,15 @@ include('../includes/config.php');
 // Make sure the current user ID is set
 $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 
-// Fetch all users
-$sql = "SELECT * FROM users ORDER BY id ASC";
+// Fetch all users + customer info (if they exist)
+$sql = "
+    SELECT 
+        u.id, u.username, u.email, u.role, u.active, u.created_at,
+        c.fname, c.lname
+    FROM users u
+    LEFT JOIN customer c ON u.id = c.user_id
+    ORDER BY u.id ASC
+";
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -32,18 +39,8 @@ $result = mysqli_query($conn, $sql);
                 <?php
                 // Determine display name
                 $displayName = $row['username'];
-                if ($row['role'] === 'customer') {
-                    $stmtProfile = $conn->prepare("SELECT fname, lname FROM customer WHERE user_id=?");
-                    $stmtProfile->bind_param("i", $row['id']);
-                    $stmtProfile->execute();
-                    $resProfile = $stmtProfile->get_result();
-                    if ($resProfile->num_rows > 0) {
-                        $profile = $resProfile->fetch_assoc();
-                        $fullName = trim($profile['fname'] . ' ' . $profile['lname']);
-                        if (!empty($fullName)) {
-                            $displayName = $fullName;
-                        }
-                    }
+                if ($row['role'] === 'customer' && !empty($row['fname']) && !empty($row['lname'])) {
+                    $displayName = trim($row['fname'] . ' ' . $row['lname']);
                 }
 
                 // Row style for inactive users
@@ -53,9 +50,9 @@ $result = mysqli_query($conn, $sql);
                     <td><?= $row['id'] ?></td>
                     <td><?= htmlspecialchars($displayName) ?></td>
                     <td><?= htmlspecialchars($row['email']) ?></td>
-                    <td><?= $row['role'] ?></td>
+                    <td><?= htmlspecialchars($row['role']) ?></td>
                     <td><?= $row['active'] ? 'Active' : 'Inactive' ?></td>
-                    <td><?= $row['created_at'] ?></td>
+                    <td><?= htmlspecialchars($row['created_at']) ?></td>
                     <td>
                         <!-- Edit Button -->
                         <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
@@ -68,11 +65,10 @@ $result = mysqli_query($conn, $sql);
                                    onclick="return confirm('Deactivate this user?');">Deactivate</a>
                             <?php else: ?>
                                 <a href="#" 
-                                class="btn btn-sm btn-secondary disabled" 
-                                style="pointer-events: none; opacity: 0.7; cursor: not-allowed;">
-                                Deactivate
+                                   class="btn btn-sm btn-secondary disabled" 
+                                   style="pointer-events: none; opacity: 0.7; cursor: not-allowed;">
+                                   Deactivate
                                 </a>
-
                             <?php endif; ?>
                         <?php else: ?>
                             <a href="toggle_status.php?id=<?= $row['id'] ?>" 

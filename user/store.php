@@ -2,15 +2,69 @@
 session_start();
 include("../includes/config.php");
 
+// Clear previous errors
+unset($_SESSION['errors']);
+unset($_SESSION['old']);
+
 // Get form data
 $username = trim($_POST['username']);
-$email = trim($_POST['email']);
+$email = trim(strtolower($_POST['email'])); // lowercase for consistency
 $password = trim($_POST['password']);
 $confirmPass = trim($_POST['confirmPass']);
 
+// Initialize error array
+$errors = [];
+
+// Preserve old input
+$old = ['username' => $username, 'email' => $email];
+
 // Check if passwords match
 if ($password !== $confirmPass) {
-    $_SESSION['message'] = 'Passwords do not match';
+    $errors['password'] = 'Passwords do not match';
+}
+
+// Validate email format
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors['email'] = 'Invalid email format';
+} else {
+    // Allowed domains
+    $allowedDomains = ['@gmail.com', '@yahoo.com', '@outlook.com'];
+    $validDomain = false;
+    foreach ($allowedDomains as $domain) {
+        if (str_ends_with($email, $domain)) {
+            $validDomain = true;
+            break;
+        }
+    }
+    if (!$validDomain) {
+        $errors['email'] = 'Email must be one of: ' . implode(', ', $allowedDomains);
+    }
+}
+
+// Check if username already exists
+$sqlUsername = "SELECT id FROM users WHERE username = ?";
+$stmtUsername = $conn->prepare($sqlUsername);
+$stmtUsername->bind_param("s", $username);
+$stmtUsername->execute();
+$stmtUsername->store_result();
+if ($stmtUsername->num_rows > 0) {
+    $errors['username'] = 'Username is already in use';
+}
+
+// Check if email already exists
+$sqlEmail = "SELECT id FROM users WHERE email = ?";
+$stmtEmail = $conn->prepare($sqlEmail);
+$stmtEmail->bind_param("s", $email);
+$stmtEmail->execute();
+$stmtEmail->store_result();
+if ($stmtEmail->num_rows > 0) {
+    $errors['email'] = 'Email is already in use';
+}
+
+// If there are errors, redirect back with messages
+if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
+    $_SESSION['old'] = $old;
     header("Location: register.php");
     exit();
 }
@@ -18,10 +72,13 @@ if ($password !== $confirmPass) {
 // Hash password securely
 $passwordHashed = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert new user with username
-$sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')";
+// Get current datetime for created_at
+$createdAt = date('Y-m-d H:i:s');
+
+// Insert new user with username and created_at
+$sql = "INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, 'customer', ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $username, $email, $passwordHashed);
+$stmt->bind_param("ssss", $username, $email, $passwordHashed, $createdAt);
 
 if ($stmt->execute()) {
     $userId = $stmt->insert_id;
@@ -42,7 +99,8 @@ if ($stmt->execute()) {
     header("Location: /lensify/e-commerce2/user/profile.php");
     exit();
 } else {
-    $_SESSION['message'] = 'Registration failed. Email or username may already be in use.';
+    $_SESSION['errors']['general'] = 'Registration failed. Please try again.';
+    $_SESSION['old'] = $old;
     header("Location: register.php");
     exit();
 }

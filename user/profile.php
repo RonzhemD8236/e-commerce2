@@ -67,6 +67,7 @@ if ($profile && empty($profile['fname']) && empty($profile['lname']) && empty($p
 }
 
 // Handle form submission
+// Handle form submission
 if (isset($_POST['submit'])) {
     // Get customer profile fields
     $lname = trim($_POST['lname']);
@@ -82,6 +83,16 @@ if (isset($_POST['submit'])) {
 
     // Get username from form
     $usernameForm = trim($_POST['username']);
+
+    // ------------------------------
+    // Validate date_of_birth: must not be a future date
+    // If invalid, set error and do NOT update database
+    // ------------------------------
+    if (!empty($date_of_birth) && $date_of_birth > date('Y-m-d')) {
+        $_SESSION['error'] = 'Date of Birth cannot be a future date. Please select a valid date.';
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
 
     // Handle image upload
     if (!empty($_FILES['image']['name'])) {
@@ -104,7 +115,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    // Update customer table
+    // Proceed to update database only if all data, including date, is valid
     $sqlUpdateProfile = "UPDATE customer 
                          SET lname=?, fname=?, addressline=?, town=?, country=?, state=?, zipcode=?, phone=?, date_of_birth=?, image_path=?, email=?
                          WHERE user_id=?";
@@ -240,8 +251,11 @@ if (isset($_POST['submit'])) {
                         <div class="row gx-3 mb-3">
                             <div class="col-md-6">
                                 <label class="small mb-1">Date of Birth</label>
-                                <input class="form-control" type="date" name="date_of_birth" value="<?php echo htmlspecialchars($profile['date_of_birth'] ?? ''); ?>" required>
+                                <input class="form-control" type="date" name="date_of_birth" 
+                                    value="<?php echo htmlspecialchars($profile['date_of_birth'] ?? ''); ?>" 
+                                    max="<?php echo date('Y-m-d'); ?>" required>
                             </div>
+
                         </div>
 
                         <button class="btn btn-primary" type="submit" name="submit">Save changes</button>

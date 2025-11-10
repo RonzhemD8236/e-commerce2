@@ -7,8 +7,8 @@ include('../includes/header.php');
     <h2>Add New User</h2>
     <form action="store.php" method="POST">
         <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control" required>
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" required>
         </div>
         <div class="mb-3">
             <label>Email</label>
