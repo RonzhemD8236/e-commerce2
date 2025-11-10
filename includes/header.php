@@ -14,14 +14,14 @@
 <body>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">My Shop</a>
+      <a class="navbar-brand" href="#">Lensify</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/shop/index.php">Home</a>
+            <a class="nav-link active" aria-current="page" href="/lensify/e-commerce2/index.php">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
@@ -34,11 +34,11 @@
 
               echo '<ul class="dropdown-menu">';
               if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                echo "<li><a class='dropdown-item' href='/shop/item/index.php'>item</a></li>";
-                echo "<li><a class='dropdown-item' href='/shop/admin/index.php'>Users</a></li>";
-                echo "<li><a class='dropdown-item' href='/shop/admin/orders.php'>orders</a></li>";
+                echo "<li><a class='dropdown-item' href='/lensify/e-commerce2/item/index.php'>item</a></li>";
+                echo "<li><a class='dropdown-item' href='/lensify/e-commerce2/admin/index.php'>Users</a></li>";
+                echo "<li><a class='dropdown-item' href='/lensify/e-commerce2/admin/orders.php'>orders</a></li>";
               } else {
-                echo '<li><a class="dropdown-item" href="/shop/user/profile.php"> profile</a></li>';
+                echo '<li><a class="dropdown-item" href="/lensify/e-commerce2/user/profile.php"> profile</a></li>';
                 echo '<li><a class="dropdown-item" href="../user/myorders.php"> My Orders</a></li>';
               }
               echo "</ul>";
@@ -49,18 +49,6 @@
           </li>
 
         </ul>
- <form action="search.php" method="GET" class="d-flex flex-column align-items-start">
-  <div class="d-flex w-100">
-    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
-    <button class="btn btn-outline-success" type="submit">Search</button>
-  </div>
-
-  <?php
-  if (isset($_SESSION['email'])) {
-      echo "<p class='text-muted ms-1 mt-1'>{$_SESSION['email']}</p>";
-  }
-  ?>
-</form>
 
 <?php
 if (!isset($_SESSION['user_id'])) {

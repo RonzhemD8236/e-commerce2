@@ -23,6 +23,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 
 $userId = $_SESSION['user_id'];
 
+// Fetch username and email from users table
+$sqlUser = "SELECT username, email FROM users WHERE id = ?";
+$stmtUser = $conn->prepare($sqlUser);
+$stmtUser->bind_param("i", $userId);
+$stmtUser->execute();
+$resultUser = $stmtUser->get_result();
+$userRow = $resultUser->fetch_assoc();
+$username = $userRow['username'] ?? '';
+$email = $userRow['email'] ?? '';
+
 // Fetch existing profile from customer table
 $sql = "SELECT * FROM customer WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
@@ -31,19 +41,24 @@ $stmt->execute();
 $result = $stmt->get_result();
 $profile = $result->fetch_assoc();
 
-// If profile doesn't exist, insert a blank one
+// If profile doesn't exist, insert a new one (after getting username & email)
 if (!$profile) {
-    $sqlInsert = "INSERT INTO customer (user_id, fname, lname, title, addressline, town, zipcode, phone, image_path)
-                  VALUES (?, '', '', '', '', '', '', '', '')";
+    $sqlInsert = "INSERT INTO customer 
+                  (user_id, fname, lname, addressline, town, country, state, zipcode, phone, date_of_birth, email, image_path)
+                  VALUES (?, '', '', '', '', 'Philippines', 'Metro Manila', '', '', '', ?, '')";
     $stmtInsert = $conn->prepare($sqlInsert);
-    $stmtInsert->bind_param("i", $userId);
+    $stmtInsert->bind_param("is", $userId, $email);
     $stmtInsert->execute();
 
-    // Fetch the newly inserted row
+    // Refetch the profile
     $stmt->execute();
     $result = $stmt->get_result();
     $profile = $result->fetch_assoc();
 }
+
+// Merge username from users table so it populates the form
+$profile['username'] = $username;
+$profile['email'] = $email;
 
 // Detect if this is the first time the user is filling the profile
 $firstTime = false;
@@ -53,14 +68,20 @@ if ($profile && empty($profile['fname']) && empty($profile['lname']) && empty($p
 
 // Handle form submission
 if (isset($_POST['submit'])) {
+    // Get customer profile fields
     $lname = trim($_POST['lname']);
     $fname = trim($_POST['fname']);
-    $title = trim($_POST['title']);
     $address = trim($_POST['address']);
     $town = trim($_POST['town']);
+    $country = trim($_POST['country']);
+    $state = trim($_POST['state']);
     $zipcode = trim($_POST['zipcode']);
     $phone = trim($_POST['phone']);
+    $date_of_birth = trim($_POST['date_of_birth']);
     $imagePath = $profile['image_path'] ?? '';
+
+    // Get username from form
+    $usernameForm = trim($_POST['username']);
 
     // Handle image upload
     if (!empty($_FILES['image']['name'])) {
@@ -83,29 +104,43 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    // Update the customer row
-    $sql = "UPDATE customer 
-            SET title=?, lname=?, fname=?, addressline=?, town=?, zipcode=?, phone=?, image_path=?
-            WHERE user_id=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssssi", $title, $lname, $fname, $address, $town, $zipcode, $phone, $imagePath, $userId);
+    // Update customer table
+    $sqlUpdateProfile = "UPDATE customer 
+                         SET lname=?, fname=?, addressline=?, town=?, country=?, state=?, zipcode=?, phone=?, date_of_birth=?, image_path=?, email=?
+                         WHERE user_id=?";
+    $stmtUpdate = $conn->prepare($sqlUpdateProfile);
+    $stmtUpdate->bind_param(
+        "sssssssssssi",
+        $lname,
+        $fname,
+        $address,
+        $town,
+        $country,
+        $state,
+        $zipcode,
+        $phone,
+        $date_of_birth,
+        $imagePath,
+        $email,
+        $userId
+    );
+    $stmtUpdate->execute();
 
-    if ($stmt->execute()) {
-        $_SESSION['success'] = 'Profile saved successfully!';
+    // Update username in users table
+    $sqlUpdateUser = "UPDATE users SET username=? WHERE id=?";
+    $stmtUserUpdate = $conn->prepare($sqlUpdateUser);
+    $stmtUserUpdate->bind_param("si", $usernameForm, $userId);
+    $stmtUserUpdate->execute();
 
-        // Redirect based on first-time profile fill
-        if ($firstTime) {
-            header("Location: /lensify/e-commerce2/index.php");
-        } else {
-            header("Location: /lensify/e-commerce2/user/profile.php");
-        }
-        exit;
+    $_SESSION['success'] = 'Profile saved successfully!';
+    if ($firstTime) {
+        header("Location: /lensify/e-commerce2/index.php");
     } else {
-        $_SESSION['error'] = 'Error saving profile.';
+        header("Location: /lensify/e-commerce2/user/profile.php");
     }
+    exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -145,43 +180,67 @@ if (isset($_POST['submit'])) {
                 <div class="card mb-4">
                     <div class="card-header">Account Details</div>
                     <div class="card-body">
+
                         <div class="row gx-3 mb-3">
                             <div class="col-md-6">
                                 <label class="small mb-1">First name</label>
-                                <input class="form-control" type="text" name="fname" value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>">
+                                <input class="form-control" type="text" name="fname" value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="small mb-1">Last name</label>
-                                <input class="form-control" type="text" name="lname" value="<?php echo htmlspecialchars($profile['lname'] ?? ''); ?>">
+                                <input class="form-control" type="text" name="lname" value="<?php echo htmlspecialchars($profile['lname'] ?? ''); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="row gx-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="small mb-1">Username</label>
+                                <input class="form-control" type="text" name="username" value="<?php echo htmlspecialchars($profile['username'] ?? ''); ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small mb-1">Email</label>
+                                <input class="form-control" type="email" name="email" 
+                                    value="<?php echo htmlspecialchars($profile['email']); ?>" readonly>
                             </div>
                         </div>
 
                         <div class="row gx-3 mb-3">
                             <div class="col-md-6">
                                 <label class="small mb-1">Address</label>
-                                <input class="form-control" type="text" name="address" value="<?php echo htmlspecialchars($profile['addressline'] ?? ''); ?>">
+                                <input class="form-control" type="text" name="address" value="<?php echo htmlspecialchars($profile['addressline'] ?? ''); ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="small mb-1">Town</label>
-                                <input class="form-control" type="text" name="town" value="<?php echo htmlspecialchars($profile['town'] ?? ''); ?>">
+                                <input class="form-control" type="text" name="town" value="<?php echo htmlspecialchars($profile['town'] ?? ''); ?>" required>
                             </div>
                         </div>
 
                         <div class="row gx-3 mb-3">
                             <div class="col-md-6">
-                                <label class="small mb-1">Zip code</label>
-                                <input class="form-control" type="text" name="zipcode" value="<?php echo htmlspecialchars($profile['zipcode'] ?? ''); ?>">
+                                <label class="small mb-1">Country</label>
+                                <input class="form-control" type="text" name="country" value="<?php echo htmlspecialchars($profile['country'] ?? 'Philippines'); ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="small mb-1">Title</label>
-                                <input class="form-control" type="text" name="title" value="<?php echo htmlspecialchars($profile['title'] ?? ''); ?>">
+                                <label class="small mb-1">State</label>
+                                <input class="form-control" type="text" name="state" value="<?php echo htmlspecialchars($profile['state'] ?? 'Metro Manila'); ?>" required>
                             </div>
                         </div>
 
                         <div class="row gx-3 mb-3">
                             <div class="col-md-6">
                                 <label class="small mb-1">Phone number</label>
-                                <input class="form-control" type="tel" name="phone" value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>">
+                                <input class="form-control" type="tel" name="phone" value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small mb-1">Zip code</label>
+                                <input class="form-control" type="text" name="zipcode" value="<?php echo htmlspecialchars($profile['zipcode'] ?? ''); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="row gx-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="small mb-1">Date of Birth</label>
+                                <input class="form-control" type="date" name="date_of_birth" value="<?php echo htmlspecialchars($profile['date_of_birth'] ?? ''); ?>" required>
                             </div>
                         </div>
 

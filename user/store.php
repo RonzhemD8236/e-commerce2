@@ -3,6 +3,7 @@ session_start();
 include("../includes/config.php");
 
 // Get form data
+$username = trim($_POST['username']);
 $email = trim($_POST['email']);
 $password = trim($_POST['password']);
 $confirmPass = trim($_POST['confirmPass']);
@@ -17,19 +18,20 @@ if ($password !== $confirmPass) {
 // Hash password securely
 $passwordHashed = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert new user
-$sql = "INSERT INTO users (email, password, role) VALUES (?, ?, 'customer')";
+// Insert new user with username
+$sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $email, $passwordHashed);
+$stmt->bind_param("sss", $username, $email, $passwordHashed);
 
 if ($stmt->execute()) {
     $userId = $stmt->insert_id;
 
-    // Insert blank profile
-    $sqlProfile = "INSERT INTO customer (user_id, fname, lname, title, addressline, town, zipcode, phone, image_path) 
-                   VALUES (?, '', '', '', '', '', '', '', '')";
+    // Insert blank profile linked to this user
+    $sqlProfile = "INSERT INTO customer 
+                   (user_id, email, fname, lname, addressline, town, country, state, zipcode, phone, date_of_birth, image_path) 
+                   VALUES (?, ?, '', '', '', '', 'Philippines', 'Metro Manila', '', '', '', '')";
     $stmtProfile = $conn->prepare($sqlProfile);
-    $stmtProfile->bind_param("i", $userId);
+    $stmtProfile->bind_param("is", $userId, $email);
     $stmtProfile->execute();
 
     // Set session variables
@@ -37,10 +39,10 @@ if ($stmt->execute()) {
     $_SESSION['role'] = 'customer';
     $_SESSION['email'] = $email;
 
-    header("Location: profile.php");
+    header("Location: /lensify/e-commerce2/user/profile.php");
     exit();
 } else {
-    $_SESSION['message'] = 'Registration failed. Email may already be in use.';
+    $_SESSION['message'] = 'Registration failed. Email or username may already be in use.';
     header("Location: register.php");
     exit();
 }
