@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 10, 2025 at 06:43 AM
+-- Generation Time: Nov 11, 2025 at 03:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,12 +49,8 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customer_id`, `title`, `fname`, `lname`, `addressline`, `town`, `country`, `state`, `date_of_birth`, `zipcode`, `phone`, `user_id`, `email`, `image_path`) VALUES
-(52, '', 'Ronz', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', NULL, '1630', '09206785416', 33, NULL, ''),
-(54, '', 'Ronzhem', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 35, NULL, ''),
-(55, '', 'user3', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-11-21', '1621', '09206785416', 36, 'user3@gmail.com', 'uploads/1762747003_pinklady.png'),
-(56, NULL, 'Ronzhem', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 42, 'sample@gmail.com', ''),
-(57, NULL, 'Ronz', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 43, 'user2@gmail.com', ''),
-(58, NULL, 'sample', 'lang', 'tindalo', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 44, 'user4@gmail.com', '');
+(55, '', 'user3', 'sample', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-11-21', '1621', '09206785416', 36, 'user3@gmail.com', 'uploads/1762747003_pinklady.png'),
+(57, NULL, 'Ronz', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 43, 'user2@gmail.com', '');
 
 -- --------------------------------------------------------
 
@@ -73,6 +69,13 @@ CREATE TABLE `item` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `item`
+--
+
+INSERT INTO `item` (`item_id`, `title`, `description`, `cost_price`, `sell_price`, `image_path`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(30, '', 'Rubik Cube', 120.00, 130.00, 'uploads/1762795239_woodpuzzle.jpg', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -106,6 +109,28 @@ CREATE TABLE `orderline` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `ordertransactiondetails`
+-- (See below for the actual view)
+--
+CREATE TABLE `ordertransactiondetails` (
+`orderinfo_id` int(11)
+,`date_placed` date
+,`date_shipped` date
+,`shipping` decimal(7,2)
+,`status` enum('Processing','Delivered','Canceled')
+,`customer_id` int(11)
+,`customer_name` varchar(65)
+,`customer_email` varchar(255)
+,`item_id` int(11)
+,`item_name` text
+,`item_price` decimal(7,2)
+,`quantity` int(11)
+,`total_price` decimal(17,2)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `stock`
 --
 
@@ -113,6 +138,13 @@ CREATE TABLE `stock` (
   `item_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `stock`
+--
+
+INSERT INTO `stock` (`item_id`, `quantity`) VALUES
+(30, 12);
 
 -- --------------------------------------------------------
 
@@ -126,19 +158,26 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'customer',
-  `created_at` timestamp NULL DEFAULT NULL
+  `created_at` timestamp NULL DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
-(36, '', 'user3@gmail.com', '$2y$10$iuvaFfqjgCqSzOOAKtBL.ePErbdSacvkweuYLJO61nMDDWI.GA1TS', 'admin', NULL),
-(40, 'diosooo', 'sample1@gmail.com', '$2y$10$LEjgTTSAFMZiju9e/HZPwOv3K1nK/eLtZyGpmce5iOsmiS67rQRLS', 'customer', NULL),
-(42, 'typedronzhem23', 'sample@gmail.com', '$2y$10$0IZjOXLTCgcs.grAPRfLnORaS25OQakEkOJ6f/J1sHOOgQood0NTK', 'customer', NULL),
-(43, 'r.dio', 'user2@gmail.com', '$2y$10$aoIkFTAfwmMksyjl302pOOabTq.14bb9QBX/3bLPSXQpYrQsY/Koq', 'customer', NULL),
-(44, 'sampleuser', 'user4@gmail.com', '$2y$10$DJ.ZtFxThQ.9Xefhh55A8ue.OHGCX1wDnj1eNTEQ4mXx3Q4CU0th6', 'customer', NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`, `active`) VALUES
+(36, '', 'user3@gmail.com', '$2y$10$iuvaFfqjgCqSzOOAKtBL.ePErbdSacvkweuYLJO61nMDDWI.GA1TS', 'admin', NULL, 1),
+(43, 'r.dio', 'user2@gmail.com', '$2y$10$aoIkFTAfwmMksyjl302pOOabTq.14bb9QBX/3bLPSXQpYrQsY/Koq', 'customer', NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `ordertransactiondetails`
+--
+DROP TABLE IF EXISTS `ordertransactiondetails`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ordertransactiondetails`  AS SELECT `o`.`orderinfo_id` AS `orderinfo_id`, `o`.`date_placed` AS `date_placed`, `o`.`date_shipped` AS `date_shipped`, `o`.`shipping` AS `shipping`, `o`.`status` AS `status`, `c`.`customer_id` AS `customer_id`, concat(`c`.`fname`,' ',`c`.`lname`) AS `customer_name`, `c`.`email` AS `customer_email`, `ol`.`item_id` AS `item_id`, `i`.`title` AS `item_name`, `i`.`sell_price` AS `item_price`, `ol`.`quantity` AS `quantity`, `ol`.`quantity`* `i`.`sell_price` AS `total_price` FROM (((`orderinfo` `o` join `customer` `c` on(`o`.`customer_id` = `c`.`customer_id`)) join `orderline` `ol` on(`o`.`orderinfo_id` = `ol`.`orderinfo_id`)) join `item` `i` on(`ol`.`item_id` = `i`.`item_id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -184,13 +223,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `orderinfo`
@@ -202,13 +241,13 @@ ALTER TABLE `orderinfo`
 -- AUTO_INCREMENT for table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- Constraints for dumped tables
@@ -220,9 +259,6 @@ ALTER TABLE `users`
 ALTER TABLE `customer`
   ADD CONSTRAINT `fk_customer_email` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
-
-ALTER TABLE users
-ADD COLUMN active TINYINT(1) NOT NULL DEFAULT 1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
