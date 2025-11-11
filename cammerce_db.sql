@@ -260,6 +260,28 @@ ALTER TABLE `customer`
   ADD CONSTRAINT `fk_customer_email` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
+-- views
+-- CREATE VIEW OrderTransactionDetails AS
+-- SELECT 
+--     o.orderinfo_id,
+--     o.date_placed,
+--     o.date_shipped,
+--     o.shipping,
+--     o.status,
+--     c.customer_id,
+--     CONCAT(c.fname, ' ', c.lname) AS customer_name,
+--     c.email AS customer_email,
+--     ol.item_id,
+--     i.title AS item_name,
+--     i.sell_price AS item_price,
+--     ol.quantity,
+--     (ol.quantity * i.sell_price) AS total_price
+-- FROM orderinfo o
+-- JOIN customer c ON o.customer_id = c.customer_id
+-- JOIN orderline ol ON o.orderinfo_id = ol.orderinfo_id
+-- JOIN item i ON ol.item_id = i.item_id;
+
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
