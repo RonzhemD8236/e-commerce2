@@ -62,6 +62,14 @@ unset($_SESSION['errors'], $_SESSION['old']); // clear after use
     </form>
 </div>
 
+<style>
+    /* Background image only for login page */
+    body {
+        background: url('https://i.pinimg.com/736x/69/69/b9/6969b990fc444e1aa1af2ef880df8fa8.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
+
 <!-- Bootstrap Icons CDN for eye icon -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
