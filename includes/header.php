@@ -77,24 +77,15 @@ if (strpos($current_dir, '/user') !== false ||
           <li class="nav-item">
             <a class="nav-link active" href="/lensify/e-commerce2/index.php">Home</a>
           </li>
-
-          <?php if ($role === 'user'): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="/lensify/e-commerce2/contact.php">Contact / Support</a>
-              <a class="nav-link" href="/lensify/e-commerce2/contact.php">About Us / Support</a>
-              <a class="nav-link" href="/lensify/e-commerce2/contact.php">Cameras / Support</a>
-            </li>
-          <?php elseif ($role === 'admin'): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="/lensify/e-commerce2/item/index.php">Product Management</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/lensify/e-commerce2/admin/orders.php">Orders Management</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/lensify/e-commerce2/admin/index.php">Users Management</a>
-            </li>
-          <?php endif; ?>
+          <li class="nav-item">
+            <a class="nav-link" href="/lensify/e-commerce2/categories.php">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/lensify/e-commerce2/products.php">Products</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/lensify/e-commerce2/contact.php">Contact</a>
+          </li>
         </ul>
         <center><strong><a class="navbar-brand" href="#">Lensify</a></strong></center>
 
@@ -119,16 +110,13 @@ if (strpos($current_dir, '/user') !== false ||
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="/lensify/e-commerce2/user/profile.php">Edit Profile</a></li>
-
-                <?php if ($role === 'user'): ?>
-                  <li><a class="dropdown-item" href="/lensify/e-commerce2/user/account.php">Account Settings</a></li>
-                  <li><a class="dropdown-item" href="/lensify/e-commerce2/user/myorders.php">My Orders</a></li>
-                  <li><a class="dropdown-item" href="/lensify/e-commerce2/user/purchased.php">Purchased Products</a></li>
-                  <li><a class="dropdown-item" href="/lensify/e-commerce2/user/payment.php">Payment Methods / Addresses</a></li>
-                <?php endif; ?>
-
+                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/account.php">Account Settings</a></li>
+                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/myorders.php">My Orders</a></li>
+                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/purchased.php">Purchased Products</a></li>
+                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/payment.php">Payment Methods / Addresses</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="/lensify/e-commerce2/user/logout.php">Logout</a></li>
+
               </ul>
             </li>
           <?php else: ?>

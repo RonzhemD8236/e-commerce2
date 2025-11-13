@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../includes/header.php');
+include('../admin/header.php');
 include('../includes/config.php');
 
 // Make sure the current user ID is set
