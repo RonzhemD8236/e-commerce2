@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2025 at 03:14 PM
+-- Generation Time: Nov 13, 2025 at 04:47 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,7 +39,7 @@ CREATE TABLE `customer` (
   `date_of_birth` date DEFAULT NULL,
   `zipcode` char(10) NOT NULL,
   `phone` varchar(16) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `image_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -49,8 +49,9 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customer_id`, `title`, `fname`, `lname`, `addressline`, `town`, `country`, `state`, `date_of_birth`, `zipcode`, `phone`, `user_id`, `email`, `image_path`) VALUES
-(55, '', 'user3', 'sample', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-11-21', '1621', '09206785416', 36, 'user3@gmail.com', 'uploads/1762747003_pinklady.png'),
-(57, NULL, 'Ronz', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 43, 'user2@gmail.com', '');
+(71, NULL, 'Sample', 'user', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-23', '1630', '09206785416', 61, 'user@gmail.com', 'uploads/1763036063_blackldy.png'),
+(72, NULL, 'Ronzhem', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-24', '1630', '09206785416', 62, 'user@gmail.com', ''),
+(73, NULL, 'Ronzhem', 'Dioso', 'Tindalo Street', 'Taguig City', 'Philippines', 'Metro Manila', '2006-08-22', '1630', '09206785416', 63, 'user1@gmail.com', '');
 
 -- --------------------------------------------------------
 
@@ -159,16 +160,18 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'customer',
   `created_at` timestamp NULL DEFAULT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT 1
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `profile_img` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`, `active`) VALUES
-(36, '', 'user3@gmail.com', '$2y$10$iuvaFfqjgCqSzOOAKtBL.ePErbdSacvkweuYLJO61nMDDWI.GA1TS', 'admin', NULL, 1),
-(43, 'r.dio', 'user2@gmail.com', '$2y$10$aoIkFTAfwmMksyjl302pOOabTq.14bb9QBX/3bLPSXQpYrQsY/Koq', 'customer', NULL, 1);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`, `active`, `profile_img`) VALUES
+(61, 'admin', 'admin@gmail.com', '$2y$10$XqLeurhmVsEbKVKj4kQiMOVzcr5ii.mUQaGH2FZ6IP8iklY/.YUIK', 'admin', '2025-11-13 05:09:07', 1, NULL),
+(62, 'userako', 'user@gmail.com', '$2y$10$S/gXtJK.tflT2ezY6NU92ugynrdl/ThsGgxNAJ.9kcUNCLCJ/h3Ce', 'customer', '2025-11-13 05:22:14', 1, NULL),
+(63, 'user', 'user1@gmail.com', '$2y$10$.B78NoOfKKe0hTCBouzN..Zzzifz470lnsNOyrGdSoLG959z6TT06', 'customer', '2025-11-13 06:45:31', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -188,7 +191,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`customer_id`),
-  ADD KEY `fk_customer_email` (`email`);
+  ADD KEY `fk_customer_user` (`user_id`);
 
 --
 -- Indexes for table `item`
@@ -223,7 +226,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT for table `item`
@@ -247,7 +250,7 @@ ALTER TABLE `stock`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- Constraints for dumped tables
@@ -257,30 +260,8 @@ ALTER TABLE `users`
 -- Constraints for table `customer`
 --
 ALTER TABLE `customer`
-  ADD CONSTRAINT `fk_customer_email` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_customer_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
-
--- views
--- CREATE VIEW OrderTransactionDetails AS
--- SELECT 
---     o.orderinfo_id,
---     o.date_placed,
---     o.date_shipped,
---     o.shipping,
---     o.status,
---     c.customer_id,
---     CONCAT(c.fname, ' ', c.lname) AS customer_name,
---     c.email AS customer_email,
---     ol.item_id,
---     i.title AS item_name,
---     i.sell_price AS item_price,
---     ol.quantity,
---     (ol.quantity * i.sell_price) AS total_price
--- FROM orderinfo o
--- JOIN customer c ON o.customer_id = c.customer_id
--- JOIN orderline ol ON o.orderinfo_id = ol.orderinfo_id
--- JOIN item i ON ol.item_id = i.item_id;
-
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

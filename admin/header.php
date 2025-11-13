@@ -72,7 +72,7 @@ if (strpos($current_dir, '/admin') !== false) {
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand fw-bold" href="index.php">
-        <i class="fas fa-user-shield"></i> Admin Panel
+    Admin Panel
       </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
