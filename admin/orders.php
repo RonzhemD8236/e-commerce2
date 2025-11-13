@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../includes/header.php');
+include('header.php'); // Admin header
 include('../includes/config.php');
 //CREATE VIEW  salesPerOrder as SELECT o.orderinfo_id, SUM(i.sell_price * ol.quantity), o.status FROM orderinfo o INNER JOIN orderline ol using (orderinfo_id) INNER JOIN item i USING (item_id)
 // GROUP BY o.orderinfo_id;

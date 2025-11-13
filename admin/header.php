@@ -52,13 +52,13 @@ if (strpos($current_dir, '/admin') !== false) {
       margin-right: 8px;
     }
     .navbar {
-      background-color: #111 !important;
+      background-color: white!important;
     }
     .navbar .nav-link, .navbar .navbar-brand {
-      color: #fff !important;
+      color: #000 !important;
     }
     .navbar .nav-link:hover, .navbar .dropdown-item:hover {
-      color: #ffd700 !important;
+      color: red !important;
     }
     .dropdown-menu {
       background-color: #fff;
@@ -83,10 +83,10 @@ if (strpos($current_dir, '/admin') !== false) {
 
       <div class="collapse navbar-collapse" id="navbarAdmin">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="manage_users.php">Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="manage_products.php">Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="manage_orders.php">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/lensify/e-commerce2/admin/index.php">Users</a></li>
+          <li class="nav-item"><a class="nav-link" href="/lensify/e-commerce2/item/index.php">Products</a></li>
+          <li class="nav-item"><a class="nav-link" href="/lensify/e-commerce2/admin/orders.php">Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
         </ul>
 
