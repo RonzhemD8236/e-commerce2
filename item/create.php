@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../includes/header.php');
+include('../admin/header.php'); // Admin header
 include('../includes/config.php');
 
 // ✅ Reset session values when opening page normally (not coming from store.php with errors)
