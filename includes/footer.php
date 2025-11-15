@@ -2,25 +2,13 @@
 // includes/footer.php
 ?>
 <style>
-/* Ensure body and html have no margin/padding */
-html, body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-}
-
-/* FOOTER - Full width, edge to edge */
+/* NORMAL FOOTER - Not fixed, at bottom of content */
 .footer {
-    width: 100vw; /* Full viewport width */
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw; /* Pull it to screen edges */
-    margin-right: -50vw;
+    width: 100%;
     background: #000;
     color: #fff;
     padding: 40px 0;
-    margin-top: 40px;
+    margin-top: 80px;
     box-sizing: border-box;
     text-align: center;
 }
@@ -59,7 +47,6 @@ html, body {
 
 <!-- Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
 
 </body>
 </html>

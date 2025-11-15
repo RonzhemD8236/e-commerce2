@@ -36,34 +36,60 @@ if (strpos($current_dir, '/user') !== false ||
     <link href="<?php echo htmlspecialchars($css_path); ?>" rel="stylesheet" type="text/css">
     
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
         
-        <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* 🔻 Sticky Footer CSS */
-    html, body {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    body {
-        min-height: 100vh;
-    }
-
-    .main-content {
-        flex: 1;
-    }
-
+        html {
+            height: 100%;
+        }
+        
+        body {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Fixed Navbar at Top */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            background: #fff !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #333;
+            padding: 0.5rem 1rem;
+        }
+        
+        .nav-link:hover {
+            color: #0d6efd;
+        }
+        
+        /* Main Content Area - Takes remaining space */
+        .main-content {
+            flex: 1 0 auto;
+            margin-top: 70px;
+            width: 100%;
+        }
+        
+        /* Footer will be pushed to bottom naturally */
+        .footer {
+            flex-shrink: 0;
+        }
 
         /* Profile & Cart Styles */
         .profile-img {
@@ -90,32 +116,11 @@ if (strpos($current_dir, '/user') !== false ||
             padding: 2px 5px; 
             border-radius: 50%;
         }
-        
-        /* Navbar styling to match design */
-        .navbar {
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 1rem 2rem;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            color: #333;
-            padding: 0.5rem 1rem;
-        }
-        
-        .nav-link:hover {
-            color: #0d6efd;
-        }
     </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- FIXED NAVBAR -->
 <nav class="navbar navbar-expand-lg bg-white">
     <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="/e-commerce2/homepage.php">📸 Lensify</a>
@@ -156,15 +161,13 @@ if (strpos($current_dir, '/user') !== false ||
                 ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="<?= htmlspecialchars($profileImg) ?>" alt="Profile" class="profile-img">
+                            <img src="<?php echo htmlspecialchars($profileImg); ?>" alt="Profile" class="profile-img">
                             My Account
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/e-commerce2/user/profile.php">Edit Profile</a></li>
-                            <li><a class="dropdown-item" href="/e-commerce2/user/account.php">Account Settings</a></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/profile.php">Profile</a></li>
                             <li><a class="dropdown-item" href="/e-commerce2/user/myorders.php">My Orders</a></li>
                             <li><a class="dropdown-item" href="/e-commerce2/user/purchased.php">Purchased Products</a></li>
-                            <li><a class="dropdown-item" href="/e-commerce2/user/payment.php">Payment Methods / Addresses</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/e-commerce2/user/logout.php">Logout</a></li>
                         </ul>

@@ -5,488 +5,616 @@ include('./includes/config.php');
 ?>
 
 <style>
-    * {
-        box-sizing: border-box;
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Override Bootstrap container */
+.main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Page Wrapper - Full Width */
+.product-page-wrapper {
+    width: 100%;
+    background: #f5f5f5;
+    padding: 0;
+    margin: 0;
+}
+
+/* ========================================
+   HERO SECTION - FULL WIDTH
+   ======================================== */
+.hero-section {
+    background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin: 0;
+}
+
+.hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.2;
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-section h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.hero-section p {
+    font-size: 1.2em;
+    opacity: 0.95;
+    line-height: 1.7;
+}
+
+/* ========================================
+   SEARCH SECTION
+   ======================================== */
+.search-section {
+    width: 100%;
+    background: white;
+    padding: 40px 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.search-box {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 18px 30px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 17px;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #4a0080;
+    box-shadow: 0 0 0 4px rgba(74, 0, 128, 0.1);
+    background: white;
+}
+
+/* ========================================
+   MAIN CONTENT AREA - CONSTRAINED WIDTH
+   ======================================== */
+.content-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Filter Section - Side by Side */
+.filter-section {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.filter-sidebar {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 300px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 100px;
+}
+
+.filter-sidebar h3 {
+    margin-bottom: 25px;
+    color: #1a0033;
+    font-size: 1.4em;
+    font-weight: 700;
+    border-bottom: 3px solid #4a0080;
+    padding-bottom: 15px;
+}
+
+/* Products Content */
+.products-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.filter-header {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.results-count {
+    color: #333;
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+/* ========================================
+   PRICE FILTER
+   ======================================== */
+.price-filter h4 {
+    margin-bottom: 20px;
+    color: #1a0033;
+    font-size: 1.05em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.price-slider-container {
+    margin: 25px 0;
+}
+
+.price-slider {
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(to right, #e0e0e0, #4a0080);
+    border-radius: 10px;
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.price-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 3px solid #4a0080;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+
+.price-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 5px 15px rgba(74, 0, 128, 0.4);
+}
+
+.price-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 3px solid #4a0080;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.price-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-weight: 700;
+    font-size: 1em;
+    color: #4a0080;
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 30px;
+    transition: all 0.3s;
+    width: 100%;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.reset-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(74, 0, 128, 0.4);
+}
+
+/* ========================================
+   PRODUCTS GRID - MODERN LAYOUT
+   ======================================== */
+.products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+/* Product Card - Modern Design */
+.product {
+    width: 100% !important;
+    background: white !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.product:hover {
+    transform: translateY(-12px) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+
+.product.out-of-stock {
+    opacity: 0.6;
+}
+
+.product > a {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* Product Thumbnail - Improved */
+.product-thumb {
+    position: relative;
+    width: 100% !important;
+    height: 320px !important;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    flex-shrink: 0;
+}
+
+.product-thumb img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    transition: opacity 1s ease, transform 0.5s ease;
+}
+
+.product:hover .product-thumb img {
+    transform: scale(1.1);
+}
+
+/* Stock Badge - Modern */
+.stock-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(76, 175, 80, 0.95);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.stock-badge.out {
+    background: rgba(244, 67, 54, 0.95);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Product Info - Improved Spacing */
+.product-info {
+    padding: 25px !important;
+    flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px;
+}
+
+.product-name {
+    font-size: 1.15em !important;
+    font-weight: 700 !important;
+    color: #1a0033 !important;
+    line-height: 1.5 !important;
+    min-height: 55px;
+    margin: 0 !important;
+}
+
+.product-price {
+    font-size: 1.8em !important;
+    font-weight: 800 !important;
+    color: #4a0080 !important;
+    margin-top: auto !important;
+    margin-bottom: 0 !important;
+}
+
+.product-price.out-of-stock {
+    color: #f44336 !important;
+    font-size: 1.2em !important;
+    font-weight: 700 !important;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 100px 40px;
+    color: #666;
+    display: none;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.no-results h3 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #1a0033;
+    font-weight: 700;
+}
+
+.no-results p {
+    font-size: 1.2em;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 1200px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: 25px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .filter-section {
+        flex-direction: column;
     }
     
-    /* Hero Section */
-    .hero-section {
-        background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
-        color: white;
-        padding: 40px;
-        border-radius: 12px;
-        margin: 20px auto;
-        max-width: 1400px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .hero-image {
-        position: absolute;
-        top: 0;
-        left: 0;
+    .filter-sidebar {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: 0.3; /* Adjust opacity as needed */
-        z-index: 1;
-    }
-    
-    .hero-content {
-        position: relative;
-        z-index: 2;
+        position: static;
     }
     
     .hero-section h1 {
         font-size: 2.5em;
-        margin-bottom: 10px;
-        font-weight: 700;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 20px;
+    }
+    
+    .hero-section h1 {
+        font-size: 2em;
     }
     
     .hero-section p {
         font-size: 1em;
-        opacity: 0.9;
-        max-width: 600px;
-        margin: 0 auto;
-        line-height: 1.5;
     }
     
-    /* Search Section */
-    .search-section {
-        max-width: 1400px;
-        margin: 20px auto;
-        text-align: center;
-    }
-    
-    .search-box {
-        display: inline-block;
-        width: 100%;
-        max-width: 500px;
-    }
-    
-    .search-box input {
-        width: 100%;
-        padding: 12px 20px;
-        border: 2px solid #e0e0e0;
-        border-radius: 25px;
-        font-size: 16px;
-        transition: all 0.3s;
-    }
-    
-    .search-box input:focus {
-        outline: none;
-        border-color: #4a0080;
-        box-shadow: 0 0 0 3px rgba(74, 0, 128, 0.1);
-    }
-    
-    /* Filter Section */
-    .filter-section {
-        max-width: 1400px;
-        margin: 20px auto 30px;
-        display: flex;
-        gap: 30px;
-        align-items: flex-start;
-    }
-    
-    .filter-sidebar {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        width: 280px;
-        flex-shrink: 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-    
-    .filter-sidebar h3 {
-        margin-bottom: 20px;
-        color: #1a0033;
-        font-size: 1.2em;
-        font-weight: 700;
-    }
-    
-    .main-content {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .filter-header {
-        background: white;
-        padding: 20px 25px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-    
-    .results-count {
-        color: #666;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-    
-    .price-filter {
-        margin-top: 0;
-    }
-    
-    .price-filter h4 {
-        margin-bottom: 15px;
-        color: #1a0033;
-        font-size: 0.95em;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .price-slider-container {
-        margin: 15px 0;
-    }
-    
-    .price-slider {
-        width: 100%;
-        height: 6px;
-        background: #e0e0e0;
-        border-radius: 5px;
-        outline: none;
-        -webkit-appearance: none;
-    }
-    
-    .price-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: #4a0080;
-        cursor: pointer;
-        border-radius: 50%;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    .price-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: #4a0080;
-        cursor: pointer;
-        border-radius: 50%;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    .price-values {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 8px;
-        font-weight: 600;
-        font-size: 0.9em;
-        color: #4a0080;
-    }
-    
-    .reset-btn {
-        background: #1a0033;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        margin-top: 20px;
-        transition: all 0.3s;
-        width: 100%;
-        font-weight: 600;
-    }
-    
-    .reset-btn:hover {
-        background: #4a0080;
-        transform: translateY(-2px);
-    }
-    
-    /* Products Grid */
-    .products-container {
-        max-width: 1400px;
-        margin: 0 auto;
+    .content-wrapper {
+        padding: 30px 15px;
     }
     
     .products-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        padding: 20px 0;
-    }
-    
-.product {
-    width: 300%;
-    height: 300px;
-    object-fit: cover;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    transition: all 0.3s;
-    display: flex;
-    flex-direction: column;
-}
-
-    
-    .product:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    }
-    
-    .product.out-of-stock {
-        opacity: 0.6;
-    }
-    
-    .product > a {
-        text-decoration: none;
-        color: black;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+        gap: 20px !important;
     }
     
     .product-thumb {
-        position: relative;
-        width: 100%;
-        height: 250px;
-        overflow: hidden;
-        background: #f9f9f9;
+        height: 280px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 40px 15px;
     }
     
-    .product-thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transition: opacity 1s ease, transform 0.3s ease;
+    .hero-section h1 {
+        font-size: 1.75em;
     }
     
-    .product:hover .product-thumb img {
-        transform: scale(1.05);
+    .search-section {
+        padding: 30px 15px;
     }
     
-    .stock-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #4caf50;
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        z-index: 10;
+    .products-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
     }
     
-    .stock-badge.out {
-        background: #f44336;
+    .product-thumb {
+        height: 320px !important;
     }
-    
-    .product-info {
-        padding: 20px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .product-name {
-        font-size: 1.1em;
-        font-weight: 600;
-        color: #1a0033;
-        margin-bottom: 10px;
-        line-height: 1.4;
-    }
-    
-    .product-price {
-        font-size: 1.5em;
-        font-weight: 700;
-        color: #4a0080;
-        margin-top: auto;
-        text-align: center;
-    }
-    
-    .product-price.out-of-stock {
-        color: #f44336;
-        font-size: 1.1em;
-    }
-    
-    .no-results {
-        text-align: center;
-        padding: 60px 20px;
-        color: #666;
-        display: none;
-    }
-    
-    .no-results h3 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-    }
-    
-    @media (max-width: 768px) {
-        .hero-section h1 {
-            font-size: 1.8em;
-        }
-        
-        .hero-section p {
-            font-size: 0.95em;
-        }
-        
-        .filter-section {
-            flex-direction: column;
-        }
-        
-        .filter-sidebar {
-            width: 100%;
-        }
-        
-        .product {
-            flex: 1 1 calc(50% - 20px);
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .product {
-            flex: 1 1 100%;
-            max-width: 100%;
-        }
-    }
+}
 </style>
 
-<!-- Hero Section -->
-<div class="hero-section">
-    <!-- Add your banner image here by replacing 'path/to/your/banner-image.jpg' with the actual path -->
-    <img src="path/to/your/banner-image.jpg" alt="Banner Image" class="hero-image">
-    <div class="hero-content">
-        <h1>Discover Our Products</h1>
-        <p>Explore our carefully curated collection of premium products. From the latest trends to timeless classics, find exactly what you're looking for with our easy search and filter options.</p>
+<div class="product-page-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <img src="uploads/banner.jpg" alt="Banner" class="hero-image">
+        <div class="hero-content">
+            <h1>Discover Our Products</h1>
+            <p>Explore our carefully curated collection of premium products. From the latest trends to timeless classics, find exactly what you're looking for.</p>
+        </div>
     </div>
-</div>
 
-<!-- Search Section -->
-<div class="search-section">
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 Search products...">
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search products by name...">
+        </div>
     </div>
-</div>
 
-<!-- Filter Section -->
-<div class="filter-section">
-    <!-- Left Sidebar - Filters -->
-    <div class="filter-sidebar">
-        <h3>Filters</h3>
-        
-        <div class="price-filter">
-            <h4>Price Range</h4>
-            <div class="price-slider-container">
-                <input type="range" id="minPrice" class="price-slider" min="0" max="50000" value="0" step="100">
-                <div class="price-values">
-                    <span>Min: ₱<span id="minPriceValue">0</span></span>
-            </div>
-            </div>
-            <div class="price-slider-container">
-                <input type="range" id="maxPrice" class="price-slider" min="0" max="50000" value="50000" step="100">
-                <div class="price-values">
-                    <span>Max: ₱<span id="maxPriceValue">50,000</span></span>
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="filter-section">
+            <!-- Left Sidebar - Filters -->
+            <div class="filter-sidebar">
+                <h3>Filters</h3>
+                
+                <div class="price-filter">
+                    <h4>Price Range</h4>
+                    <div class="price-slider-container">
+                        <input type="range" id="minPrice" class="price-slider" min="0" max="50000" value="0" step="100">
+                        <div class="price-values">
+                            <span>Min: ₱<span id="minPriceValue">0</span></span>
+                        </div>
+                    </div>
+                    <div class="price-slider-container">
+                        <input type="range" id="maxPrice" class="price-slider" min="0" max="50000" value="50000" step="100">
+                        <div class="price-values">
+                            <span>Max: ₱<span id="maxPriceValue">50,000</span></span>
+                        </div>
+                    </div>
+                    <button class="reset-btn" onclick="resetFilters()">Reset Filters</button>
                 </div>
             </div>
-            <button class="reset-btn" onclick="resetFilters()">Reset Filters</button>
-        </div>
-    </div>
-    
-        <div class="products-grid" id="productsGrid">
-    <?php
-    $sql = "SELECT i.item_id AS itemId, i.description AS item_name, i.image_path, i.sell_price, s.quantity AS stock
-            FROM item i
-            INNER JOIN stock s USING(item_id)
-            ORDER BY i.item_id ASC";
-    $results = mysqli_query($conn, $sql);
+            
+            <!-- Right Side - Products -->
+            <div class="products-content">
+                <div class="filter-header">
+                    <div class="results-count" id="resultsCount">Loading products...</div>
+                </div>
+                
+                <div class="products-grid" id="productsGrid">
+                <?php
+                $sql = "SELECT i.item_id AS itemId, i.description AS item_name, i.image_path, i.sell_price, s.quantity AS stock
+                        FROM item i
+                        INNER JOIN stock s USING(item_id)
+                        ORDER BY i.item_id ASC";
+                $results = mysqli_query($conn, $sql);
 
-    if ($results) {
-        while ($row = mysqli_fetch_assoc($results)) {
+                if ($results) {
+                    while ($row = mysqli_fetch_assoc($results)) {
+$item_name = htmlspecialchars($row['item_name'] ?? 'Unnamed Product');
 
-            $item_name = htmlspecialchars($row['item_name']);
-            $price = number_format($row['sell_price'], 2);
-            $itemId = $row['itemId'];
-            $stock = (int)$row['stock'];
-            $raw_price = $row['sell_price'];
+                        $price = number_format($row['sell_price'], 2);
+                        $itemId = $row['itemId'];
+                        $stock = (int)$row['stock'];
+                        $raw_price = $row['sell_price'];
 
-            // Handle multiple images
-            $images = json_decode($row['image_path'], true) ?: ['uploads/default.png'];
-            $images = array_map(function($img){ return file_exists($img) ? $img : 'uploads/default.png'; }, $images);
+                        $images = json_decode($row['image_path'], true);
+                        if (!is_array($images)) $images = ['uploads/default.png'];
 
-            $stockClass = ($stock > 0) ? '' : 'out-of-stock';
-            $stockBadge = ($stock > 0) ? 'In Stock' : 'Out of Stock';
-            $stockBadgeClass = ($stock > 0) ? '' : 'out';
+                        $processedImages = [];
+                        foreach ($images as $img) {
+                            if (file_exists($img)) $processedImages[] = $img;
+                        }
+                        if (empty($processedImages)) $processedImages = ['uploads/default.png'];
 
-            echo '<div class="product ' . $stockClass . '" data-price="' . $raw_price . '" data-name="' . strtolower($item_name) . '">';
+                        $stockClass = ($stock > 0) ? '' : 'out-of-stock';
+                        $stockBadge = ($stock > 0) ? 'In Stock' : 'Out of Stock';
+                        $stockBadgeClass = ($stock > 0) ? '' : 'out';
 
-            echo '<a href="product_details.php?id=' . $itemId . '">';
+                        echo '<div class="product ' . $stockClass . '" data-price="' . $raw_price . '">';
+                        echo '<a href="product_details.php?id=' . $itemId . '">';
+                        echo '<div class="product-thumb">';
+                        echo '<span class="stock-badge ' . $stockBadgeClass . '">' . $stockBadge . '</span>';
+                        foreach ($processedImages as $index => $img) {
+                            $cacheBuster = file_exists($img) ? filemtime($img) : time();
+                            echo '<img src="' . $img . '?v=' . $cacheBuster . '" class="rotating-image" style="opacity:' . ($index === 0 ? 1 : 0) . ';">';
+                        }
+                        echo '</div>'; // end product-thumb
 
-            // Image container with stock badge
-            echo '<div class="product-thumb">';
-            echo '<span class="stock-badge ' . $stockBadgeClass . '">' . $stockBadge . '</span>';
+                        echo '<div class="product-info">';
+                        echo '<div class="product-name">' . $item_name . '</div>';
+                        echo '<div class="product-price ' . $stockClass . '">';
+                        echo ($stock > 0) ? '₱' . $price : 'OUT OF STOCK';
+                        echo '</div>';
+                        echo '</div>'; // end product-info
 
-            foreach ($images as $index => $img) {
-                $cacheBuster = file_exists($img) ? filemtime($img) : time();
-                echo '<img src="' . $img . '?v=' . $cacheBuster . '" class="rotating-image" style="opacity:' . ($index === 0 ? 1 : 0) . ';">';
-            }
-            echo '</div>';
+                        echo '</a>';
+                        echo '</div>'; // end product
+                    } // end while
+                } // end if
+                ?>
+                </div> <!-- end products-grid -->
 
-            // Product info
-            echo '<div class="product-info">';
-            echo '<div class="product-name">' . $item_name . '</div>';
-            echo '<div class="product-price ' . $stockClass . '">';
-            echo ($stock > 0) ? '₱' . $price : 'OUT OF STOCK';
-            echo '</div>';
-            echo '</div>';
-
-            echo '</a>';
-            echo '</div>';
-        }
-    }
-    ?>
-    </div>
-        
-        <div class="no-results" id="noResults">
-            <h3>No products found</h3>
-            <p>Try adjusting your search or filter criteria</p>
+                
+                <div class="no-results" id="noResults">
+                    <h3>No products found</h3>
+                    <p>Try adjusting your search or filter criteria</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Scripts -->
-<script>
+<script type="text/javascript">
 // Rotating image script
-document.querySelectorAll('.product-thumb').forEach(function(container) {
-    const imgs = container.querySelectorAll('img.rotating-image');
-    let current = 0;
-    if(imgs.length > 1){
-        setInterval(function() {
-            imgs[current].style.opacity = 0;
-            current = (current + 1) % imgs.length;
-            imgs[current].style.opacity = 1;
-        }, 5000);
-    }
-});
+var productThumbs = document.querySelectorAll('.product-thumb');
+for (var i = 0; i < productThumbs.length; i++) {
+    (function(container) {
+        var imgs = container.querySelectorAll('img.rotating-image');
+        var current = 0;
+        if(imgs.length > 1){
+            setInterval(function() {
+                imgs[current].style.opacity = 0;
+                current = (current + 1) % imgs.length;
+                imgs[current].style.opacity = 1;
+            }, 5000);
+        }
+    })(productThumbs[i]);
+}
 
 // Filter functionality
-const searchInput = document.getElementById('searchInput');
-const minPriceSlider = document.getElementById('minPrice');
-const maxPriceSlider = document.getElementById('maxPrice');
-const minPriceValue = document.getElementById('minPriceValue');
-const maxPriceValue = document.getElementById('maxPriceValue');
-const productsGrid = document.getElementById('productsGrid');
-const noResults = document.getElementById('noResults');
-const resultsCount = document.getElementById('resultsCount');
+var searchInput = document.getElementById('searchInput');
+var minPriceSlider = document.getElementById('minPrice');
+var maxPriceSlider = document.getElementById('maxPrice');
+var minPriceValue = document.getElementById('minPriceValue');
+var maxPriceValue = document.getElementById('maxPriceValue');
+var productsGrid = document.getElementById('productsGrid');
+var noResults = document.getElementById('noResults');
+var resultsCount = document.getElementById('resultsCount');
 
-// Update price values display
 minPriceSlider.addEventListener('input', function() {
     minPriceValue.textContent = parseInt(this.value).toLocaleString();
     if (parseInt(this.value) > parseInt(maxPriceSlider.value)) {
@@ -505,43 +633,41 @@ maxPriceSlider.addEventListener('input', function() {
     filterProducts();
 });
 
-// Search functionality
 searchInput.addEventListener('input', filterProducts);
 
 function filterProducts() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const minPrice = parseInt(minPriceSlider.value);
-    const maxPrice = parseInt(maxPriceSlider.value);
-    const products = document.querySelectorAll('.product');
-    let visibleCount = 0;
-    
-    products.forEach(product => {
-        const productName = product.getAttribute('data-name');
-        const productPrice = parseFloat(product.getAttribute('data-price'));
-        
-        const matchesSearch = productName.includes(searchTerm);
-        const matchesPrice = productPrice >= minPrice && productPrice <= maxPrice;
-        
+    var searchTerm = searchInput.value.toLowerCase();
+    var minPrice = parseInt(minPriceSlider.value);
+    var maxPrice = parseInt(maxPriceSlider.value);
+    var products = document.querySelectorAll('.product');
+    var visibleCount = 0;
+
+    products.forEach(function(product) {
+        var productName = product.querySelector('.product-name').textContent.toLowerCase(); // use text
+        var productPrice = parseFloat(product.getAttribute('data-price'));
+
+        var matchesSearch = productName.includes(searchTerm);
+        var matchesPrice = productPrice >= minPrice && productPrice <= maxPrice;
+
         if (matchesSearch && matchesPrice) {
-            product.style.display = 'flex';
+            product.style.display = ''; // show
             visibleCount++;
         } else {
-            product.style.display = 'none';
+            product.style.display = 'none'; // hide
         }
     });
-    
-    // Show/hide no results message
+
     if (visibleCount === 0) {
         productsGrid.style.display = 'none';
         noResults.style.display = 'block';
     } else {
-        productsGrid.style.display = 'flex';
+        productsGrid.style.display = 'grid';
         noResults.style.display = 'none';
     }
-    
-    // Update results count
-    resultsCount.textContent = `Showing ${visibleCount} product${visibleCount !== 1 ? 's' : ''}`;
+
+    resultsCount.textContent = 'Showing ' + visibleCount + ' product' + (visibleCount !== 1 ? 's' : '');
 }
+
 
 function resetFilters() {
     searchInput.value = '';
@@ -552,10 +678,8 @@ function resetFilters() {
     filterProducts();
 }
 
-// Initial count
 filterProducts();
 </script>
 
 <?php
-include('./includes/footer.php');
-?>
+include('./includes/footer.php'); ?>

@@ -3,6 +3,11 @@ session_start();
 include('./includes/header.php');
 include('./includes/config.php');
 
+// Include review functions
+if (file_exists('./review/review_functions.php')) {
+    include('./review/review_functions.php');
+}
+
 // Check if product ID is provided
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     echo "<script>alert('No product selected.'); window.location.href='index.php';</script>";
@@ -29,38 +34,31 @@ if (!$result || mysqli_num_rows($result) == 0) {
 
 $row = mysqli_fetch_assoc($result);
 
-// Debug: Show raw image_path from database
-echo "<!-- DEBUG: Raw image_path from DB: " . htmlspecialchars($row['image_path']) . " -->";
-
 // Handle images - Simple approach
-$images = [];
+$images = array();
 
 if (!empty($row['image_path'])) {
     // Remove escaped slashes that might cause JSON decode issues
     $cleanPath = stripslashes($row['image_path']);
-    echo "<!-- DEBUG: After stripslashes: " . htmlspecialchars($cleanPath) . " -->";
     
     // Try to decode as JSON
     $decoded = json_decode($cleanPath, true);
     
     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
         $images = $decoded;
-        echo "<!-- DEBUG: Successfully decoded JSON, found " . count($images) . " images -->";
     } else {
         // Not JSON, treat as single path
-        $images = [$cleanPath];
-        echo "<!-- DEBUG: Not JSON, treating as single image. JSON Error: " . json_last_error_msg() . " -->";
+        $images = array($cleanPath);
     }
 }
 
 // If no images found, use placeholder
 if (empty($images)) {
-    $images = ['https://via.placeholder.com/400x300?text=No+Image'];
-    echo "<!-- DEBUG: No images, using placeholder -->";
+    $images = array('https://via.placeholder.com/400x300?text=No+Image');
 }
 
 // Process each image to create full URLs
-$processedImages = [];
+$processedImages = array();
 foreach ($images as $img) {
     // Skip empty values
     if (empty(trim($img))) {
@@ -70,7 +68,6 @@ foreach ($images as $img) {
     // If already full URL, use as-is
     if (strpos($img, 'http://') === 0 || strpos($img, 'https://') === 0) {
         $processedImages[] = $img;
-        echo "<!-- DEBUG: Full URL: $img -->";
         continue;
     }
     
@@ -83,57 +80,88 @@ foreach ($images as $img) {
     $fullUrl = $scheme . '://' . $host . '/e-commerce2/' . $img;
     
     $processedImages[] = $fullUrl;
-    echo "<!-- DEBUG: Converted '$img' to '$fullUrl' -->";
-    
-    // Check if file exists on server
-    $filePath = $_SERVER['DOCUMENT_ROOT'] . '/e-commerce2/' . $img;
-    if (file_exists($filePath)) {
-        echo "<!-- DEBUG: ✓ File EXISTS at: $filePath -->";
-    } else {
-        echo "<!-- DEBUG: ✗ File NOT FOUND at: $filePath -->";
-    }
 }
 
 // If no valid images after processing, use placeholder
 if (empty($processedImages)) {
-    $processedImages = ['https://via.placeholder.com/400x300?text=Image+Not+Found'];
-    echo "<!-- DEBUG: No valid images after processing, using placeholder -->";
+    $processedImages = array('https://via.placeholder.com/400x300?text=Image+Not+Found');
 }
 
 $images = $processedImages;
-echo "<!-- DEBUG: Final image URLs: " . json_encode($images) . " -->";
 
 $stock = (int)$row['stock'];
 $inStock = $stock > 0;
+
+// Get reviews and ratings (only if review functions exist)
+$reviews = array();
+$avgRating = 0;
+$totalReviews = 0;
+$canReview = false;
+$userOrder = null;
+$userExistingReview = null;
+
+if (function_exists('getProductReviews')) {
+    $reviews = getProductReviews($conn, $itemId);
+    $ratingData = getAverageRating($conn, $itemId);
+    $avgRating = $ratingData['avg_rating'] ? round($ratingData['avg_rating'], 1) : 0;
+    $totalReviews = $ratingData['total_reviews'];
+    
+    // Get customer_id - check session or lookup from user_id
+    $currentCustomerId = 0;
+    if (isset($_SESSION['customer_id'])) {
+        $currentCustomerId = $_SESSION['customer_id'];
+    } elseif (isset($_SESSION['user_id']) && function_exists('getCustomerIdFromUserId')) {
+        $currentCustomerId = getCustomerIdFromUserId($conn, $_SESSION['user_id']);
+        if ($currentCustomerId > 0) {
+            $_SESSION['customer_id'] = $currentCustomerId; // Store for future use
+        }
+    }
+    
+    if ($currentCustomerId > 0) {
+        $userOrder = canCustomerReview($conn, $currentCustomerId, $itemId);
+        $canReview = $userOrder !== false && $userOrder !== null;
+        
+        // Check if user already has a review
+        if ($canReview) {
+            foreach ($reviews as $review) {
+                if ($review['customer_id'] == $currentCustomerId) {
+                    $userExistingReview = $review;
+                    break;
+                }
+            }
+        }
+    }
+}
 ?>
 
-<div class="container mt-5">
-    <div class="row">
+<div class="main-content">
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 50px 20px 100px 20px;">
+    <div class="row" style="margin-bottom: 60px;">
         <!-- Image slider -->
-        <div class="col-md-5 d-flex align-items-end justify-content-center">
-            <div class="image-slider position-relative" style="width:100%; max-height:450px; min-height:450px; overflow:hidden; border-radius:10px; border:1px solid #ddd; background:#f5f5f5;">
+        <div class="col-md-6 pe-4">
+            <div class="image-slider position-relative" style="width:100%; height:400px; overflow:hidden; border-radius:10px; border:1px solid #ddd; background:#f5f5f5;">
                 <?php if (!empty($images)): ?>
                     <?php foreach ($images as $index => $img): ?>
-                        <img src="<?= htmlspecialchars($img) ?>" 
+                        <img src="<?php echo htmlspecialchars($img); ?>" 
                              class="slider-image" 
-                             alt="Product Image <?= $index + 1 ?>"
-                             style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; transition: opacity 0.5s ease; opacity:<?= $index === 0 ? 1 : 0 ?>;"
-                             onerror="console.error('❌ Failed to load:', '<?= htmlspecialchars($img, ENT_QUOTES) ?>'); this.style.display='none';"
-                             onload="console.log('✓ Loaded:', '<?= htmlspecialchars($img, ENT_QUOTES) ?>');">
+                             alt="Product Image <?php echo $index + 1; ?>"
+                             style="width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; transition: opacity 0.5s ease; opacity:<?php echo $index === 0 ? 1 : 0; ?>;"
+                             onerror="console.error('Failed to load:', '<?php echo htmlspecialchars($img, ENT_QUOTES); ?>'); this.style.display='none';"
+                             onload="console.log('Loaded:', '<?php echo htmlspecialchars($img, ENT_QUOTES); ?>');">
                     <?php endforeach; ?>
                     
                     <!-- Navigation Buttons -->
                     <?php if (count($images) > 1): ?>
                         <button class="slider-btn prev-btn" onclick="changeSlide(-1)" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:18px; z-index:10;">
-                            ‹
+                            &lsaquo;
                         </button>
                         <button class="slider-btn next-btn" onclick="changeSlide(1)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:18px; z-index:10;">
-                            ›
+                            &rsaquo;
                         </button>
                         
                         <!-- Image Counter -->
                         <div class="image-counter" style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:white; padding:5px 15px; border-radius:20px; font-size:14px; z-index:10;">
-                            <span id="currentImageNum">1</span> / <?= count($images) ?>
+                            <span id="currentImageNum">1</span> / <?php echo count($images); ?>
                         </div>
                     <?php endif; ?>
                     
@@ -148,64 +176,213 @@ $inStock = $stock > 0;
         </div>
 
         <!-- Product details -->
-        <div class="col-md-7">
-            <h2><?= htmlspecialchars($row['description']) ?></h2>
+        <div class="col-md-6 ps-4 d-flex align-items-center">
+            <div style="width: 100%;">
+                <h2 style="font-size: 1.75rem; margin-bottom: 15px;"><?php echo htmlspecialchars($row['description']); ?></h2>
+            
+            <!-- Rating Display -->
+            <?php if ($totalReviews > 0): ?>
+            <div class="mb-2">
+                <div class="d-flex align-items-center">
+                    <div class="star-rating" style="font-size: 18px; color: #ffc107;">
+                        <?php for($i = 1; $i <= 5; $i++): ?>
+                            <?php if ($i <= floor($avgRating)): ?>
+                                &#9733;
+                            <?php elseif ($i - $avgRating < 1 && $avgRating > floor($avgRating)): ?>
+                                &#11089;
+                            <?php else: ?>
+                                &#9734;
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </div>
+                    <span class="ms-2" style="font-size: 14px;">
+                        <strong><?php echo $avgRating; ?></strong> out of 5 
+                        (<?php echo $totalReviews; ?> <?php echo $totalReviews == 1 ? 'review' : 'reviews'; ?>)
+                    </span>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <?php if (!empty($row['short_description'])): ?>
-                <p><strong>Summary:</strong> <?= htmlspecialchars($row['short_description']) ?></p>
+                <p style="margin-bottom: 10px; font-size: 14px;"><strong>Summary:</strong> <?php echo htmlspecialchars($row['short_description']); ?></p>
             <?php endif; ?>
 
             <?php if (!empty($row['specifications'])): ?>
-                <p><strong>Specifications:</strong><br><?= nl2br(htmlspecialchars($row['specifications'])) ?></p>
+                <p style="margin-bottom: 15px; font-size: 14px;"><strong>Specifications:</strong><br><?php echo nl2br(htmlspecialchars($row['specifications'])); ?></p>
             <?php endif; ?>
 
-            <h4 class="text-success">₱<?= number_format($row['sell_price'], 2) ?></h4>
+            <h4 class="text-success" style="margin-bottom: 15px; font-size: 1.5rem;">&#8369;<?php echo number_format($row['sell_price'], 2); ?></h4>
 
-            <p><strong>Available Stock:</strong>
+            <p style="margin-bottom: 15px; font-size: 14px;"><strong>Available Stock:</strong>
                 <?php if ($inStock): ?>
-                    <span id="availableStock"><?= $stock ?></span>
+                    <span id="availableStock"><?php echo $stock; ?></span>
                 <?php else: ?>
                     <span style="color:red; font-size:24px; font-weight:bold;">OUT OF STOCK</span>
                 <?php endif; ?>
             </p>
 
             <?php if ($inStock): ?>
-            <form id="addToCartForm" class="mt-3">
+            <form id="addToCartForm" class="mt-2" onsubmit="return false;">
                 <input type="hidden" name="type" value="add">
-                <input type="hidden" name="item_id" value="<?= $row['item_id'] ?>">
-                <input type="hidden" name="item_name" value="<?= htmlspecialchars($row['description']) ?>">
-                <input type="hidden" name="item_price" value="<?= $row['sell_price'] ?>">
+                <input type="hidden" name="item_id" value="<?php echo $row['item_id']; ?>">
+                <input type="hidden" name="item_name" value="<?php echo htmlspecialchars($row['description']); ?>">
+                <input type="hidden" name="item_price" value="<?php echo $row['sell_price']; ?>">
 
-                <div class="mb-3">
-                    <label>Quantity:</label>
+                <div class="mb-2">
+                    <label style="font-size: 14px;">Quantity:</label>
                     <input type="number" name="item_qty" id="quantity"
-                           value="1" min="1" max="<?= $stock ?>"
-                           class="form-control" style="width:100px;">
+                           value="1" min="1" max="<?php echo $stock; ?>"
+                           class="form-control" style="width:100px; font-size: 14px;">
                 </div>
 
-                <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
+                <button type="button" onclick="submitCart()" class="btn btn-success">Add to Cart</button>
             </form>
+            <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <?php if (function_exists('getProductReviews')): ?>
+    <div class="row" style="margin-top: 60px; margin-bottom: 100px;">
+        <div class="col-12">
+            <h3>Customer Reviews</h3>
+            <hr>
+            
+            <!-- Write/Edit Review Button -->
+            <?php 
+            // Check if logged in using both possible session keys
+            $isUserLoggedIn = isset($_SESSION['customer_id']) || isset($_SESSION['user_id']);
+            $currentCustomerId = isset($_SESSION['customer_id']) ? $_SESSION['customer_id'] : (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null);
+            ?>
+            
+            <?php if ($isUserLoggedIn): ?>
+                <?php if ($canReview): ?>
+                    <button class="btn btn-primary mb-4" onclick="toggleReviewForm()">
+                        <?php echo $userExistingReview ? 'Edit Your Review' : 'Write a Review'; ?>
+                    </button>
+                    
+                    <!-- Review Form -->
+                    <div id="reviewFormContainer" style="display:none; margin-bottom: 100px;" class="card mb-4">
+                        <div class="card-body" style="padding: 30px;">
+                            <h5 style="margin-bottom: 25px;"><?php echo $userExistingReview ? 'Edit Your Review' : 'Write Your Review'; ?></h5>
+                            <form id="reviewForm" onsubmit="return false;">
+                                <input type="hidden" name="item_id" value="<?php echo $itemId; ?>">
+                                <?php if ($userOrder && isset($userOrder['orderinfo_id'])): ?>
+                                    <input type="hidden" name="orderinfo_id" value="<?php echo $userOrder['orderinfo_id']; ?>">
+                                <?php endif; ?>
+                                <?php if ($userExistingReview): ?>
+                                    <input type="hidden" name="review_id" value="<?php echo $userExistingReview['review_id']; ?>">
+                                <?php endif; ?>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Rating <span class="text-danger">*</span></label>
+                                    <div class="star-input" id="starRating">
+                                        <?php for($i = 1; $i <= 5; $i++): ?>
+                                            <span class="star" data-rating="<?php echo $i; ?>" style="font-size:30px; cursor:pointer; color:#ddd;">&#9734;</span>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <input type="hidden" name="rating" id="ratingValue" value="<?php echo $userExistingReview ? $userExistingReview['rating'] : ''; ?>" required>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Review Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="review_title" class="form-control" maxlength="200" 
+                                           value="<?php echo $userExistingReview ? htmlspecialchars($userExistingReview['review_title']) : ''; ?>" required>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Your Review <span class="text-danger">*</span></label>
+                                    <textarea name="review_text" class="form-control" rows="5" required><?php echo $userExistingReview ? htmlspecialchars($userExistingReview['review_text']) : ''; ?></textarea>
+                                    <small class="text-muted">Inappropriate words will be automatically masked.</small>
+                                </div>
+                                
+                                <div style="margin-top: 30px; padding-bottom: 20px;">
+                                    <button type="button" onclick="submitReview()" class="btn btn-success">Submit Review</button>
+                                    <button type="button" class="btn btn-secondary" onclick="toggleReviewForm()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info">
+                        You can only review products you have purchased and received.
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="alert alert-warning">
+                    Please <a href="login.php">login</a> to write a review.
+                </div>
+            <?php endif; ?>
+            
+            <!-- Display Reviews -->
+            <?php if (empty($reviews)): ?>
+                <p class="text-muted" style="margin-bottom: 100px;">No reviews yet. Be the first to review this product!</p>
+            <?php else: ?>
+                <div id="reviewsList" style="margin-bottom: 100px;">
+                    <?php foreach ($reviews as $review): ?>
+                        <div class="card mb-3 review-item">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title"><?php echo htmlspecialchars($review['review_title']); ?></h5>
+                                        <div class="star-rating mb-2" style="color: #ffc107;">
+                                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                                <?php echo $i <= $review['rating'] ? '&#9733;' : '&#9734;'; ?>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                    <?php if (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == $review['customer_id']): ?>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(<?php echo $review['review_id']; ?>)">Delete</button>
+                                    <?php elseif (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $review['customer_id']): ?>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(<?php echo $review['review_id']; ?>)">Delete</button>
+                                    <?php endif; ?>
+                                </div>
+                                <p class="card-text"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                                <div class="text-muted small">
+                                    <strong><?php echo htmlspecialchars($review['customer_name']); ?></strong>
+                                    <?php if ($review['is_verified_purchase']): ?>
+                                        <span class="badge bg-success ms-2">Verified Purchase</span>
+                                    <?php endif; ?>
+                                    <br>
+                                    <?php echo date('F j, Y', strtotime($review['created_at'])); ?>
+                                    <?php if ($review['updated_at'] != $review['created_at']): ?>
+                                        <em>(edited)</em>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
         </div>
     </div>
+    <?php endif; ?>
+</div>
 </div>
 
-<?php if ($inStock): ?>
-<script>
+<script type="text/javascript">
 // Image slider with manual controls only (no auto-slide)
-let currentSlide = 0;
-const imgs = document.querySelectorAll('.slider-image');
-const visibleImages = Array.from(imgs).filter(img => img.style.display !== 'none');
+var currentSlide = 0;
+var imgs = document.querySelectorAll('.slider-image');
+var visibleImages = [];
+for (var i = 0; i < imgs.length; i++) {
+    if (imgs[i].style.display !== 'none') {
+        visibleImages.push(imgs[i]);
+    }
+}
 
 function showSlide(n) {
     if (visibleImages.length === 0) {
-        const fallback = document.querySelector('.no-image-text');
+        var fallback = document.querySelector('.no-image-text');
         if (fallback) fallback.style.display = 'block';
         return;
     }
     
     // Hide all images
-    visibleImages.forEach(img => img.style.opacity = 0);
+    for (var i = 0; i < visibleImages.length; i++) {
+        visibleImages[i].style.opacity = 0;
+    }
     
     // Wrap around
     if (n >= visibleImages.length) currentSlide = 0;
@@ -215,7 +392,7 @@ function showSlide(n) {
     visibleImages[currentSlide].style.opacity = 1;
     
     // Update counter
-    const counter = document.getElementById('currentImageNum');
+    var counter = document.getElementById('currentImageNum');
     if (counter) counter.textContent = currentSlide + 1;
 }
 
@@ -230,38 +407,194 @@ if (visibleImages.length > 0) {
 }
 
 // Add hover effect to buttons
-document.querySelectorAll('.slider-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', function() {
+var sliderBtns = document.querySelectorAll('.slider-btn');
+for (var i = 0; i < sliderBtns.length; i++) {
+    sliderBtns[i].onmouseover = function() {
         this.style.background = 'rgba(0,0,0,0.8)';
-    });
-    btn.addEventListener('mouseleave', function() {
+    };
+    sliderBtns[i].onmouseout = function() {
         this.style.background = 'rgba(0,0,0,0.5)';
-    });
-});
+    };
+}
 
 // Add to cart
-document.getElementById("addToCartForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    fetch("cart/cart_update.php", { method: "POST", body: formData })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("Item added to cart!");
-            const stockSpan = document.getElementById("availableStock");
-            stockSpan.textContent = data.newStock;
-            document.getElementById("quantity").max = data.newStock;
-            if (data.newStock == 0) {
-                document.getElementById("quantity").remove();
-                document.querySelector("#addToCartForm button").remove();
-                stockSpan.outerHTML = '<span style="color:red; font-size:24px; font-weight:bold;">OUT OF STOCK</span>';
+<?php if ($inStock): ?>
+function submitCart() {
+    var form = document.getElementById("addToCartForm");
+    var formData = new FormData(form);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "cart/cart_update.php", true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    alert("Item added to cart!");
+                    var stockSpan = document.getElementById("availableStock");
+                    stockSpan.textContent = data.newStock;
+                    document.getElementById("quantity").max = data.newStock;
+                    if (data.newStock == 0) {
+                        var qtyInput = document.getElementById("quantity");
+                        var submitBtn = document.querySelector("#addToCartForm button");
+                        if (qtyInput) qtyInput.remove();
+                        if (submitBtn) submitBtn.remove();
+                        stockSpan.outerHTML = '<span style="color:red; font-size:24px; font-weight:bold;">OUT OF STOCK</span>';
+                    }
+                } else {
+                    alert(data.message || "Failed to add item.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Error processing response.");
             }
-        } else {
-            alert(data.message || "Failed to add item.");
         }
-    }).catch(err => { console.error(err); alert("Error adding to cart."); });
-});
-</script>
+    };
+    xhr.onerror = function() {
+        alert("Error adding to cart.");
+    };
+    xhr.send(formData);
+}
 <?php endif; ?>
+
+<?php if (function_exists('getProductReviews')): ?>
+// Review form toggle
+function toggleReviewForm() {
+    var form = document.getElementById('reviewFormContainer');
+    
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        
+        // Wait for display, then scroll to form
+        setTimeout(function() {
+            var formPosition = form.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: formPosition - 100,
+                behavior: 'smooth'
+            });
+        }, 100);
+    } else {
+        form.style.display = 'none';
+        
+        // Scroll back to reviews section
+        var reviewsTitle = document.querySelector('h3');
+        if (reviewsTitle && reviewsTitle.textContent.includes('Customer Reviews')) {
+            var titlePosition = reviewsTitle.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: titlePosition - 100,
+                behavior: 'smooth'
+            });
+        }
+    }
+}
+
+// Star rating interaction
+var stars = document.querySelectorAll('#starRating .star');
+var ratingInput = document.getElementById('ratingValue');
+
+// Set initial rating if editing
+<?php if ($userExistingReview): ?>
+updateStars(<?php echo $userExistingReview['rating']; ?>);
+<?php endif; ?>
+
+for (var i = 0; i < stars.length; i++) {
+    stars[i].onclick = function() {
+        var rating = this.getAttribute('data-rating');
+        ratingInput.value = rating;
+        updateStars(rating);
+    };
+    
+    stars[i].onmouseover = function() {
+        var rating = this.getAttribute('data-rating');
+        highlightStars(rating);
+    };
+}
+
+document.getElementById('starRating').onmouseout = function() {
+    updateStars(ratingInput.value);
+};
+
+function highlightStars(rating) {
+    var stars = document.querySelectorAll('#starRating .star');
+    for (var i = 0; i < stars.length; i++) {
+        var index = i + 1;
+        if (index <= rating) {
+            stars[i].style.color = '#ffc107';
+            stars[i].innerHTML = '&#9733;';
+        } else {
+            stars[i].style.color = '#ddd';
+            stars[i].innerHTML = '&#9734;';
+        }
+    }
+}
+
+function updateStars(rating) {
+    highlightStars(rating);
+}
+
+// Submit review
+<?php if ($canReview): ?>
+function submitReview() {
+    if (!ratingInput.value) {
+        alert('Please select a rating.');
+        return;
+    }
+    
+    var form = document.getElementById('reviewForm');
+    var formData = new FormData(form);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "review/submit_review.php", true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Error submitting review. Please try again.');
+            }
+        }
+    };
+    xhr.onerror = function() {
+        alert('Error submitting review. Please try again.');
+    };
+    xhr.send(formData);
+}
+<?php endif; ?>
+
+// Delete review
+function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete your review?')) return;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "review/delete_review.php", true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Error deleting review.');
+            }
+        }
+    };
+    xhr.onerror = function() {
+        alert('Error deleting review.');
+    };
+    xhr.send('review_id=' + reviewId);
+}
+<?php endif; ?>
+</script>
 
 <?php include('./includes/footer.php'); ?>
