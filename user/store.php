@@ -34,13 +34,13 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 } else {
     // Allowed domains
     $allowedDomains = ['@gmail.com', '@yahoo.com', '@outlook.com'];
-    $validDomain = false;
-    foreach ($allowedDomains as $domain) {
-        if (str_ends_with($email, $domain)) {
-            $validDomain = true;
-            break;
-        }
+   $validDomain = false;
+foreach ($allowedDomains as $domain) {
+    if (substr($email, -strlen($domain)) === $domain) {
+        $validDomain = true;
+        break;
     }
+}
     if (!$validDomain) {
         $errors['email'] = 'Email must be one of: ' . implode(', ', $allowedDomains);
     }

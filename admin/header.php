@@ -4,10 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // ✅ Restrict access to admins only
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-  header("Location: login.php");
-  exit();
-}
+// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+//   header("Location: login.php");
+//   exit();
+// }
 
 $role = $_SESSION['role'] ?? 'guest';
 

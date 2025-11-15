@@ -2,83 +2,87 @@
 session_start();
 include('../includes/header.php');
 include('../includes/config.php');
-// print_r($_SESSION);
 ?>
-
-<br>
+<div class="main-content">
 <h1 align="center">View Cart</h1>
-<div class="cart-view-table-back">
-    <form method="POST" action="cart_update.php">
-        <table width="100%" cellpadding="6" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                    <th>Remove</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $total = 0; // Initialize total outside the if block
 
-                if (isset($_SESSION["cart_products"])) {
-                    $b = 0; // zebra stripe
-                    foreach ($_SESSION["cart_products"] as $cart_itm) {
-                        $product_qty = $cart_itm["item_qty"];
-                        $product_price = $cart_itm["item_price"];
-                        $product_code = $cart_itm["item_id"];
-                        $subtotal = ($product_price * $product_qty);
-                        $bg_color = ($b++ % 2 == 1) ? 'odd' : 'even';
-
-                        // ✅ Get item_name or fallback to DB
-                        if (isset($cart_itm["item_name"]) && !empty($cart_itm["item_name"])) {
-                            $product_name = $cart_itm["item_name"];
-                        } else {
-                            // Fetch from DB if not present
-                            $stmt = $conn->prepare("SELECT description FROM item WHERE item_id = ?");
-                            $stmt->bind_param("i", $product_code);
-                            $stmt->execute();
-                            $stmt->bind_result($product_name);
-                            $stmt->fetch();
-                            $stmt->close();
-                            if (empty($product_name)) {
-                                $product_name = "Unnamed Product";
-                            }
-                        }
-
-                        echo '<tr class="' . $bg_color . '">';
-                        echo '<td>' . htmlspecialchars($product_name) . '</td>';
-                        echo '<td><input type="text" size="2" maxlength="2" name="product_qty[' . $product_code . ']" value="' . $product_qty . '" /></td>';
-                        echo '<td>' . $product_price . '</td>';
-                        echo '<td>' . $subtotal . '</td>';
-                        echo '<td><input type="checkbox" name="remove_code[]" value="' . $product_code . '" /></td>';
-                        echo '</tr>';
-                        $total += $subtotal;
-                    }
-                }
-                ?>
-                <tr>
-                    <td colspan="5">
-                        <div style="text-align: center;"> <br>
-                        Amount Payable : <?= sprintf("%01.2f", $total); ?>
-</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="5"><a href="index.php" class="button">Add More Items</a>
-                        <br>
-                        <button type="submit">Update</button>
-                        <br>
-                        <a href="checkout.php" class="button">Checkout</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </form>
-</div>
+<form method="POST" action="cart_update.php">
+<table width="100%" cellpadding="6" cellspacing="0">
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Total</th>
+    <th>Remove</th>
+</tr>
+</thead>
+<tbody>
 
 <?php
-include('../includes/footer.php');
+$total = 0;
+
+if (!empty($_SESSION['cart_products'])) {
+
+    foreach ($_SESSION['cart_products'] as $id => $itm) {
+
+        $name  = htmlspecialchars($itm['item_name']);
+        $qty   = (int)$itm['item_qty'];
+        $price = (float)$itm['item_price'];
+        $subtotal = $qty * $price;
+        $total += $subtotal;
+
+        // Get current stock from DB
+        $stmt = $conn->prepare("SELECT quantity FROM stock WHERE item_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->bind_result($stock);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($stock < 0) { $stock = 0; }
+
+        // Total available = current DB stock + quantity in cart
+        $availableForCart = $stock + $qty;
+
+        echo "<tr>
+                <td>$name</td>
+                <td>
+                    <input type='number' 
+                           name='product_qty[$id]' 
+                           value='$qty' 
+                           min='1' 
+                           max='$availableForCart'
+                           style='width:60px;'>
+                    <small style='color:gray;'>Max: $availableForCart</small>
+                </td>
+                <td>₱" . number_format($price, 2) . "</td>
+                <td>₱" . number_format($subtotal, 2) . "</td>
+                <td><input type='checkbox' name='remove_code[]' value='$id'></td>
+              </tr>";
+    }
+} else {
+    echo "<tr><td colspan='5' style='text-align:center; color:red;'>Your cart is empty.</td></tr>";
+}
 ?>
+
+<tr>
+    <td colspan="5" style="text-align:center; font-size:18px;">
+        <br><strong>Amount Payable: ₱<?= number_format($total, 2); ?></strong><br><br>
+    </td>
+</tr>
+
+<tr>
+    <td colspan="5" style="text-align:center;">
+        <button type="submit" name="update_cart" style="padding:8px 18px;">Update Cart</button>
+        <a href="../index.php" style="margin-left:20px;">Add More Items</a>
+        <a href="checkout.php" style="margin-left:20px;">Checkout</a>
+    </td>
+</tr>
+
+</tbody>
+</table>
+</form>
+</div>
+
+<?php include('../includes/footer.php'); ?>

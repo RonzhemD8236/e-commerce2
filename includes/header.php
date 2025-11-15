@@ -18,116 +18,165 @@ if (strpos($current_dir, '/user') !== false ||
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
-  <!-- Bootstrap Icons (for password toggle) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-  <!-- Bootstrap JS Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
-  
-  <!-- ✅ Custom CSS - ONLY ONE LINK -->
-  <link href="<?php echo htmlspecialchars($css_path); ?>" rel="stylesheet" type="text/css">
-  
-  <title>Lensify</title>
-
-  <style>
-    /* Keep small header-only styles here */
-    .profile-img {
-      width: 35px;
-      height: 35px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    .nav-link.dropdown-toggle.d-flex { align-items: center; }
-    .cart-icon { position: relative; }
-    .cart-count {
-      position: absolute; top: -5px; right: -10px;
-      color: white; font-size: 12px;
-      background-color: rgba(0, 0, 0, 0.7);
-      font-weight: bold; padding: 2px 5px; border-radius: 50%;
-    }
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lensify - Your Camera Shop</title>
     
-  </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link href="<?php echo htmlspecialchars($css_path); ?>" rel="stylesheet" type="text/css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 🔻 Sticky Footer CSS */
+    html, body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    body {
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+    }
+
+
+        /* Profile & Cart Styles */
+        .profile-img {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .nav-link.dropdown-toggle.d-flex { 
+            align-items: center; 
+        }
+        .cart-icon { 
+            position: relative; 
+        }
+        .cart-count {
+            position: absolute; 
+            top: -5px; 
+            right: -10px;
+            color: white; 
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 0.7);
+            font-weight: bold; 
+            padding: 2px 5px; 
+            border-radius: 50%;
+        }
+        
+        /* Navbar styling to match design */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #333;
+            padding: 0.5rem 1rem;
+        }
+        
+        .nav-link:hover {
+            color: #0d6efd;
+        }
+    </style>
 </head>
-
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-white">
     <div class="container-fluid">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
-              data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
-              aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <a class="navbar-brand fw-bold" href="/e-commerce2/homepage.php">📸 Lensify</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/e-commerce2/categories.php">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/e-commerce2/index.php">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/e-commerce2/contact.php">Contact</a>
+                </li>
+            </ul>
+            
+            <!-- Right Side Nav Items -->
+            <ul class="navbar-nav">
+                <!-- Shopping Cart -->
+                <li class="nav-item me-3">
+                    <a href="/e-commerce2/cart/view_cart.php" class="nav-link cart-icon">
+                        <i class="fas fa-shopping-cart fa-lg"></i>
+                        <?php
+                            $cartCount = $_SESSION['cart_count'] ?? 0;
+                            if ($cartCount > 0) echo "<span class='cart-count'>{$cartCount}</span>";
+                        ?>
+                    </a>
+                </li>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" href="/lensify/e-commerce2/index.php">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/lensify/e-commerce2/categories.php">Categories</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/lensify/e-commerce2/products.php">Products</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/lensify/e-commerce2/contact.php">Contact</a>
-          </li>
-        </ul>
-        <center><strong><a class="navbar-brand" href="#">Lensify</a></strong></center>
-
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item me-3">
-            <a href="/lensify/e-commerce2/cart.php" class="nav-link cart-icon">
-              <i class="fas fa-shopping-cart fa-lg"></i>
-              <?php
-                $cartCount = $_SESSION['cart_count'] ?? 0;
-                if ($cartCount > 0) echo "<span class='cart-count'>{$cartCount}</span>";
-              ?>
-            </a>
-          </li>
-
-          <?php if (isset($_SESSION['user_id'])):
-            $profileImg = $_SESSION['profile_img'] ?? '/lensify/e-commerce2/uploads/default-profile.png';
-          ?>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle d-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="<?= htmlspecialchars($profileImg) ?>" alt="Profile" class="profile-img">
-                My Account
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/profile.php">Edit Profile</a></li>
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/account.php">Account Settings</a></li>
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/myorders.php">My Orders</a></li>
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/purchased.php">Purchased Products</a></li>
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/payment.php">Payment Methods / Addresses</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="/lensify/e-commerce2/user/logout.php">Logout</a></li>
-
-              </ul>
-            </li>
-          <?php else: ?>
-            <li class="nav-item">
-              <a href="/lensify/e-commerce2/user/login.php" class="nav-link">Login</a>
-            </li>
-          <?php endif; ?>
-        </ul>
-      </div>
+                <!-- User Account / Login -->
+                <?php if (isset($_SESSION['user_id'])):
+                    $profileImg = $_SESSION['profile_img'] ?? '/e-commerce2/uploads/default-profile.png';
+                ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="<?= htmlspecialchars($profileImg) ?>" alt="Profile" class="profile-img">
+                            My Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/e-commerce2/user/profile.php">Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/account.php">Account Settings</a></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/myorders.php">My Orders</a></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/purchased.php">Purchased Products</a></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/payment.php">Payment Methods / Addresses</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/e-commerce2/user/logout.php">Logout</a></li>
+                        </ul>
+                    </li>
+                <?php else: ?>
+                    <li class="nav-item">
+                        <a href="/e-commerce2/user/login.php" class="nav-link">Login</a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
     </div>
-  </nav>
+</nav>
 
-  <!-- PAGE CONTENT STARTS BELOW -->
-  <main class="container">
+<!-- PAGE CONTENT STARTS BELOW -->

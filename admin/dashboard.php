@@ -4,10 +4,10 @@ include('../includes/config.php');
 include('header.php'); // Admin header
 
 // ✅ Restrict to logged-in admins
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../user/login.php");
-    exit();
-}
+//if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+  //  header("Location: ../user/login.php");
+    //exit();
+//}
 
 // Fetch Key Metrics
 $totalUsersQuery = $conn->query("SELECT COUNT(*) as total_users FROM users WHERE role='customer'");

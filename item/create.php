@@ -3,11 +3,6 @@ session_start();
 include('../includes/header.php');
 include('../includes/config.php');
 
-// ✅ Reset session values when opening page normally (not coming from store.php with errors)
-if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 'store.php')) {
-    unset($_SESSION['desc'], $_SESSION['cost'], $_SESSION['sell'], $_SESSION['qty']);
-    unset($_SESSION['descError'], $_SESSION['costError'], $_SESSION['sellError'], $_SESSION['qtyError'], $_SESSION['imageError']);
-}
 ?>
 
 <body>
@@ -15,14 +10,39 @@ if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 
         <form method="POST" action="store.php" enctype="multipart/form-data">
             <div class="form-group">
 
+                <!-- Category Dropdown -->
+                <label for="category">
+                    Item Category <span class="text-danger">*</span>
+                    <?php if (isset($_SESSION['categoryError'])): ?>
+                        <small class="text-danger ms-2">
+                            <?php 
+                                echo $_SESSION['categoryError']; 
+                                unset($_SESSION['categoryError']); 
+                            ?>
+                        </small>
+                    <?php endif; ?>
+                </label>
+
+                <select class="form-control" id="category" name="category">
+                    <option value="">-- Select Category --</option>
+                <option value="DSLR Cameras"        <?php if(isset($_SESSION['category']) && $_SESSION['category']=="DSLR Cameras") echo "selected"; ?>>DSLR Cameras</option>
+                <option value="Mirrorless Cameras"  <?php if(isset($_SESSION['category']) && $_SESSION['category']=="Mirrorless Cameras") echo "selected"; ?>>Mirrorless Cameras</option>
+                <option value="Action Cameras"      <?php if(isset($_SESSION['category']) && $_SESSION['category']=="Action Cameras") echo "selected"; ?>>Action Cameras</option>
+                <option value="Camera Lenses"       <?php if(isset($_SESSION['category']) && $_SESSION['category']=="Camera Lenses") echo "selected"; ?>>Camera Lenses</option>
+                <option value="Tripods & Stabilizers" <?php if(isset($_SESSION['category']) && $_SESSION['category']=="Tripods & Stabilizers") echo "selected"; ?>>Tripods & Stabilizers</option>
+                <option value="Camera Accessories"  <?php if(isset($_SESSION['category']) && $_SESSION['category']=="Camera Accessories") echo "selected"; ?>>Camera Accessories</option>
+
+                </select>
+                <br>
+
                 <!-- Item Name -->
                 <label for="name">
                     Item Name <span class="text-danger">*</span>
                     <?php if (isset($_SESSION['descError'])): ?>
                         <small class="text-danger ms-2">
                             <?php 
-                            echo $_SESSION['descError']; 
-                            unset($_SESSION['descError']); 
+                                echo $_SESSION['descError']; 
+                                unset($_SESSION['descError']); 
                             ?>
                         </small>
                     <?php endif; ?>
@@ -34,14 +54,53 @@ if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 
                        name="description"
                        value="<?php if (isset($_SESSION['desc'])) echo $_SESSION['desc']; ?>" />
 
+                <!-- Short Description -->
+                <label for="short_description">
+                    Short Description <span class="text-danger">*</span>
+                    <?php if (isset($_SESSION['shortDescError'])): ?>
+                        <small class="text-danger ms-2">
+                            <?php 
+                                echo $_SESSION['shortDescError']; 
+                                unset($_SESSION['shortDescError']); 
+                            ?>
+                        </small>
+                    <?php endif; ?>
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="short_description"
+                       placeholder="Ex: Best-selling camera lens..."
+                       name="short_description"
+                       value="<?php if (isset($_SESSION['short_desc'])) echo $_SESSION['short_desc']; ?>" />
+
+                <!-- Specifications -->
+                <label for="specifications">
+                    Specifications <span class="text-danger">*</span>
+                    <?php if (isset($_SESSION['specsError'])): ?>
+                        <small class="text-danger ms-2">
+                            <?php 
+                                echo $_SESSION['specsError']; 
+                                unset($_SESSION['specsError']); 
+                            ?>
+                        </small>
+                    <?php endif; ?>
+                </label>
+                <textarea class="form-control"
+                          id="specifications"
+                          placeholder="Enter item specifications..."
+                          name="specifications"
+                          rows="4"><?php 
+                          if (isset($_SESSION['specs'])) echo $_SESSION['specs']; 
+                          ?></textarea>
+
                 <!-- Cost Price -->
                 <label for="cost">
                     Cost Price <span class="text-danger">*</span>
                     <?php if (isset($_SESSION['costError'])): ?>
                         <small class="text-danger ms-2">
                             <?php 
-                            echo $_SESSION['costError']; 
-                            unset($_SESSION['costError']); 
+                                echo $_SESSION['costError']; 
+                                unset($_SESSION['costError']); 
                             ?>
                         </small>
                     <?php endif; ?>
@@ -59,8 +118,8 @@ if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 
                     <?php if (isset($_SESSION['sellError'])): ?>
                         <small class="text-danger ms-2">
                             <?php 
-                            echo $_SESSION['sellError']; 
-                            unset($_SESSION['sellError']); 
+                                echo $_SESSION['sellError']; 
+                                unset($_SESSION['sellError']); 
                             ?>
                         </small>
                     <?php endif; ?>
@@ -78,8 +137,8 @@ if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 
                     <?php if (isset($_SESSION['qtyError'])): ?>
                         <small class="text-danger ms-2">
                             <?php 
-                            echo $_SESSION['qtyError']; 
-                            unset($_SESSION['qtyError']); 
+                                echo $_SESSION['qtyError']; 
+                                unset($_SESSION['qtyError']); 
                             ?>
                         </small>
                     <?php endif; ?>
@@ -92,18 +151,19 @@ if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 
                        value="<?php if (isset($_SESSION['qty'])) echo $_SESSION['qty']; ?>" />
 
                 <!-- Image -->
-                <label for="image_path">
-                    Product Image <span class="text-danger">*</span>
-                    <?php if (isset($_SESSION['imageError'])): ?>
-                        <small class="text-danger ms-2">
-                            <?php 
-                            echo $_SESSION['imageError']; 
-                            unset($_SESSION['imageError']); 
-                            ?>
-                        </small>
-                    <?php endif; ?>
-                </label>
-                <input class="form-control" type="file" name="image_path" /><br />
+        <label for="image_path">
+            Product Images <span class="text-danger">*</span>
+            <?php if (isset($_SESSION['imageError'])): ?>
+                <small class="text-danger ms-2">
+                    <?php 
+                        echo $_SESSION['imageError']; 
+                        unset($_SESSION['imageError']); 
+                    ?>
+                </small>
+            <?php endif; ?>
+        </label>
+        <input class="form-control" type="file" name="image_path[]" multiple /><br />
+
 
             </div>
 

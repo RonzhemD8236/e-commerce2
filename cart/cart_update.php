@@ -1,66 +1,117 @@
+
+
 <?php
 session_start();
 include('../includes/config.php');
 
-// ---------------------- ADD TO CART ----------------------
-if (isset($_POST["type"]) && $_POST["type"] === 'add' && isset($_POST["item_qty"]) && $_POST["item_qty"] > 0) {
-    $item_id = (int)$_POST["item_id"];
-    $item_name = htmlspecialchars(trim($_POST["item_name"]));
-    $item_price = (float)$_POST["item_price"];
-    $item_qty = (int)$_POST["item_qty"];
+// Make sure output is always JSON for AJAX
+header('Content-Type: application/json');
 
-    $new_product = [
-        "item_id"    => $item_id,
-        "item_name"  => $item_name,
-        "item_price" => $item_price,
-        "item_qty"   => $item_qty
-    ];
+// Initialize response
+$response = [
+    "success" => false,
+    "message" => "",
+    "newStock" => 0
+];
 
-    // ✅ If item already exists, add quantity
-    if (isset($_SESSION["cart_products"][$item_id])) {
-        $_SESSION["cart_products"][$item_id]["item_qty"] += $item_qty;
-    } else {
-        $_SESSION["cart_products"][$item_id] = $new_product;
+// ===== ADD TO CART (AJAX from product_details) =====
+if (isset($_POST['type']) && $_POST['type'] === 'add') {
+
+    $id = intval($_POST['item_id']);
+    $qty = intval($_POST['item_qty']);
+
+    // Get current stock
+    $sql = "SELECT quantity FROM stock WHERE item_id = $id";
+    $res = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($res);
+    $stock = intval($row['quantity']);
+
+    if ($qty > $stock) {
+        $response['message'] = "Not enough stock!";
+        echo json_encode($response);
+        exit;
     }
 
-    header("Location: /lensify/e-commerce2/index.php");
-    exit();
+    // Deduct stock
+    mysqli_query($conn, "UPDATE stock SET quantity = quantity - $qty WHERE item_id = $id");
+
+    // Add to session cart
+// Add to session cart
+if (!isset($_SESSION['cart_products'][$id])) {
+    $_SESSION['cart_products'][$id] = [
+        "item_id" => $id,  // ← ADD THIS LINE
+        "item_name" => $_POST['item_name'],
+        "item_price" => $_POST['item_price'],
+        "item_qty" => $qty
+    ];
+} else {
+    $_SESSION['cart_products'][$id]['item_qty'] += $qty;
 }
 
-// ---------------------- UPDATE OR REMOVE ITEMS ----------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Return updated stock
+    $newStock = $stock - $qty;
 
-    // ✅ Update item quantities
-    if (!empty($_POST["product_qty"])) {
-        foreach ($_POST["product_qty"] as $item_id => $qty) {
-            $item_id = (int)$item_id;
-            $qty = (int)$qty;
+    $response['success'] = true;
+    $response['newStock'] = $newStock;
+    echo json_encode($response);
+    exit;
+}
 
-            if (isset($_SESSION["cart_products"][$item_id])) {
-                if ($qty > 0) {
-                    $_SESSION["cart_products"][$item_id]["item_qty"] = $qty;
+
+
+// ===== UPDATE CART (From view_cart.php — NOT AJAX) =====
+if (isset($_POST['update_cart'])) {
+
+    if (!empty($_POST['product_qty'])) {
+        foreach ($_POST['product_qty'] as $id => $newQty) {
+
+            $newQty = intval($newQty);
+            if ($newQty < 1) $newQty = 1;
+
+            $oldQty = $_SESSION['cart_products'][$id]['item_qty'];
+
+            // Quantity lowered → return stock
+            if ($newQty < $oldQty) {
+                $returnQty = $oldQty - $newQty;
+                mysqli_query($conn, "UPDATE stock SET quantity = quantity + $returnQty WHERE item_id = $id");
+            }
+
+            // Quantity increased → check stock
+            if ($newQty > $oldQty) {
+                $needed = $newQty - $oldQty;
+
+                $res = mysqli_query($conn, "SELECT quantity FROM stock WHERE item_id = $id");
+                $row = mysqli_fetch_assoc($res);
+
+                if ($row['quantity'] >= $needed) {
+                    mysqli_query($conn, "UPDATE stock SET quantity = quantity - $needed WHERE item_id = $id");
                 } else {
-                    // Remove if quantity is 0
-                    unset($_SESSION["cart_products"][$item_id]);
+                    // Max allowed is oldQty + available
+                    $newQty = $oldQty + $row['quantity'];
+                    mysqli_query($conn, "UPDATE stock SET quantity = 0 WHERE item_id = $id");
                 }
             }
+
+            // Update session cart
+            $_SESSION['cart_products'][$id]['item_qty'] = $newQty;
         }
     }
 
-    // ✅ Remove selected items (checkbox)
-    if (!empty($_POST["remove_code"])) {
-        foreach ($_POST["remove_code"] as $item_id) {
-            $item_id = (int)$item_id;
-            if (isset($_SESSION["cart_products"][$item_id])) {
-                unset($_SESSION["cart_products"][$item_id]);
-            }
+    // Remove items
+    if (!empty($_POST['remove_code'])) {
+        foreach ($_POST['remove_code'] as $remove_id) {
+
+            $qtyToReturn = $_SESSION['cart_products'][$remove_id]['item_qty'];
+
+            mysqli_query($conn, "UPDATE stock SET quantity = quantity + $qtyToReturn WHERE item_id = $remove_id");
+
+            unset($_SESSION['cart_products'][$remove_id]);
         }
     }
 
-    header("Location: /lensify/e-commerce2/index.php");
-    exit();
+    // Redirect (NOT JSON)
+    header("Location: view_cart.php");
+    exit;
 }
 
-// ---------------------- FALLBACK ----------------------
-header("Location: /lensify/e-commerce2/index.php");
-exit();
+?>

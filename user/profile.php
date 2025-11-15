@@ -1,4 +1,5 @@
 <?php
+ob_start();
 session_start();
 include('../includes/config.php');
 include('../includes/header.php');
@@ -290,3 +291,5 @@ document.getElementById('imageInput').addEventListener('change', function(e){
 </script>
 </body>
 </html>
+ob_end_flush();
+?>
