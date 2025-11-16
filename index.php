@@ -673,21 +673,22 @@ function filterProducts() {
 
         if (matchesSearch && matchesPrice) {
             product.style.display = 'flex';
+            product.style.setProperty('display', 'flex', 'important');
             visibleCount++;
         } else {
             product.style.display = 'none';
+            product.style.setProperty('display', 'none', 'important');
         }
     });
 
     // Show/Hide product grid & no-results message
-if (visibleCount === 0) {
-    productsGrid.style.display = 'none';
-    noResults.style.display = 'block';
-} else {
-    productsGrid.style.display = 'grid';
-    noResults.style.display = 'none';
-}
-
+    if (visibleCount === 0) {
+        productsGrid.style.display = 'none';
+        noResults.style.display = 'block';
+    } else {
+        productsGrid.style.display = 'grid';
+        noResults.style.display = 'none';
+    }
 
     // Update results text
     resultsCount.textContent = 'Showing ' + visibleCount + ' product' + (visibleCount !== 1 ? 's' : '');

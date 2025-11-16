@@ -21,7 +21,6 @@ $products = $conn->query($sql);
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Lensify - Your Camera Shop</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
         body { 
@@ -45,6 +44,10 @@ $products = $conn->query($sql);
         height: 100%;
         background-color: rgba(0, 0, 0, 0.6);
         z-index: -1;
+    }
+    
+    .main-container {
+        padding-top: 100px; /* Add space for fixed header */
     }
     
     /* HERO */
@@ -255,6 +258,6 @@ $products = $conn->query($sql);
 
 <?php include("includes/footer.php");?>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JavaScript is already included in header.php, no need to include again -->
 </body>
 </html>

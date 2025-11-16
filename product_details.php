@@ -134,6 +134,167 @@ if (function_exists('getProductReviews')) {
 }
 ?>
 
+<style>
+    body {
+    background-image: url('uploads/homepage.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #f8f9fa; /* Default light text for body */
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+.main-content {
+    padding-top: 100px;
+    min-height: 100vh;
+}
+
+/* PRODUCT CONTAINER */
+.product-container {
+    background: rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 40px;
+    color: #f8f9fa; /* All text inside product container is light */
+}
+
+.product-container h2,
+.product-container h3,
+.product-container h4,
+.product-container h5,
+.product-container p,
+.product-container strong,
+.product-container span,
+.product-container li {
+    color: #f8f9fa;
+}
+
+/* IMAGE SLIDER */
+.image-slider {
+    background: #00000031 !important;
+    border: 2px solid #00000031 !important;
+    border-radius: 15px !important;
+    overflow: hidden;
+}
+
+/* BUTTONS */
+.slider-btn {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    transition: all 0.3s ease;
+}
+
+.slider-btn:hover {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
+    transform: scale(1.1);
+}
+
+.image-counter {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    color: #f8f9fa !important;
+}
+
+/* BUTTONS */
+.btn-success,
+.btn-primary {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    border: none !important;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    color: #f8f9fa !important;
+}
+
+.btn-success:hover,
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* REVIEWS SECTION */
+.reviews-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #1a1a1a; /* Keep reviews readable on white background */
+}
+
+/* REVIEW ITEM */
+.review-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #1a1a1a; /* Dark text for reviews */
+}
+
+.review-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* FORM CONTROLS */
+/* Dark text for inputs and textareas in reviews section */
+.reviews-section .form-control {
+    color: #1a1a1a;      /* Dark text for readability */
+    background: #fff;     /* White background for inputs */
+    border-color: #ced4da; /* Standard input border */
+}
+
+.reviews-section .form-control:focus {
+    color: #1a1a1a;
+    background: #fff;
+    border-color: #ffc107; /* Highlight border */
+    box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2);
+}
+
+
+/* STAR RATING */
+.star-rating,
+.star-input .star {
+    color: #ffc107; /* Gold stars */
+}
+
+/* ALERTS */
+.alert {
+    border-radius: 12px;
+    border: none;
+    backdrop-filter: blur(10px);
+    color: #1a1a1a;
+}
+
+</style>
+
+
 <div class="main-content">
 <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 50px 20px 100px 20px;">
     <div class="row" style="margin-bottom: 60px;">
