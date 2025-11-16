@@ -115,39 +115,12 @@ try {
     // Calculate grand total
     $grand_total = $merchandise_total + $shipping_cost;
 
-    // ---------- SAVE PAYMENT DETAILS ----------
-    if ($payment_method === 'card') {
-        $card_number_safe = $conn->real_escape_string($card_number);
-        $card_name_safe   = $conn->real_escape_string($card_name);
-        $card_expiry_safe = $conn->real_escape_string($card_expiry);
-        $card_cvv_safe    = $conn->real_escape_string($card_cvv);
-
-        $sql_card = "
-            INSERT INTO payment_card(orderinfo_id, card_number, card_name, card_expiry, card_cvv)
-            VALUES ($orderinfo_id, '$card_number_safe', '$card_name_safe', '$card_expiry_safe', '$card_cvv_safe')
-        ";
-        if (!$conn->query($sql_card)) {
-            throw new Exception("Card payment insert failed: " . $conn->error);
-        }
-    } elseif ($payment_method === 'ewallet') {
-        $ewallet_number_safe = $conn->real_escape_string($ewallet_number);
-        $ewallet_name_safe   = $conn->real_escape_string($ewallet_name);
-        $ewallet_id_safe     = $conn->real_escape_string($ewallet_id);
-
-        $sql_ewallet = "
-            INSERT INTO payment_ewallet(orderinfo_id, wallet_number, wallet_name, wallet_id)
-            VALUES ($orderinfo_id, '$ewallet_number_safe', '$ewallet_name_safe', '$ewallet_id_safe')
-        ";
-        if (!$conn->query($sql_ewallet)) {
-            throw new Exception("E-wallet payment insert failed: " . $conn->error);
-        }
-    }
-
     // ---------- COMMIT ----------
     mysqli_commit($conn);
 
     // ---------- SEND EMAIL RECEIPT ----------
     $mail = new PHPMailer(true);
+    $mail->CharSet = 'UTF-8'; // ✅ Add this line
     
     try {
         // Mailtrap SMTP Configuration
@@ -214,6 +187,7 @@ try {
                     <table style='width: 100%; border-collapse: collapse; margin-bottom: 30px;'>
                         <thead>
                             <tr style='background: #f8f9fa;'>
+
                                 <th style='padding: 15px; text-align: left; font-weight: 600; color: #8b5cf6; border-bottom: 2px solid #e0e0e0;'>Product</th>
                                 <th style='padding: 15px; text-align: center; font-weight: 600; color: #8b5cf6; border-bottom: 2px solid #e0e0e0;'>Qty</th>
                                 <th style='padding: 15px; text-align: right; font-weight: 600; color: #8b5cf6; border-bottom: 2px solid #e0e0e0;'>Price</th>
@@ -226,6 +200,7 @@ try {
                     </table>
                     
                     <!-- Order Summary -->
+
                     <div style='background: #f8f9fa; padding: 20px; border-radius: 8px;'>
                         <div style='display: flex; justify-content: space-between; margin-bottom: 10px;'>
                             <span style='color: #666;'>Subtotal:</span>
