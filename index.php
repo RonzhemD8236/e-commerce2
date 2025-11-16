@@ -8,11 +8,15 @@ include('./includes/config.php');
 /* ========================================
    RESET & BASE STYLES
    ======================================== */
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+
 
 /* Override Bootstrap container */
 .main-content {
@@ -24,8 +28,8 @@ include('./includes/config.php');
 
 /* Page Wrapper - Full Width */
 .product-page-wrapper {
+    background: transparent !important;
     width: 100%;
-    background: #f5f5f5;
     padding: 0;
     margin: 0;
 }
@@ -33,6 +37,13 @@ include('./includes/config.php');
 /* ========================================
    HERO SECTION - FULL WIDTH
    ======================================== */
+
+body {
+    background: url("uploads/homepage.jpg") no-repeat center center fixed;
+    background-size: cover;
+}
+
+
 .hero-section {
     background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
     color: white;
@@ -80,7 +91,7 @@ include('./includes/config.php');
    ======================================== */
 .search-section {
     width: 100%;
-    background: white;
+    background: transparent;
     padding: 40px 20px;
     text-align: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -166,6 +177,15 @@ include('./includes/config.php');
     font-weight: 700;
     font-size: 1.2em;
 }
+
+.filter-sidebar,
+.filter-header {
+    background: rgba(255, 255, 255, 0.8) !important; /* 80% transparency */
+    backdrop-filter: blur(10px) !important; /* glass effect */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
 
 /* ========================================
    PRICE FILTER
@@ -489,7 +509,9 @@ include('./includes/config.php');
     <!-- Search Section -->
     <div class="search-section">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 Search products by name...">
+            <?php $searchValue = isset($_GET['search']) ? $_GET['search'] : ''; ?>
+        <input type="text" id="searchInput" placeholder="🔍 Search products by name..." value="<?php echo htmlspecialchars($searchValue); ?>">
+    
         </div>
     </div>
 
@@ -643,31 +665,33 @@ function filterProducts() {
     var visibleCount = 0;
 
     products.forEach(function(product) {
-        var productName = product.querySelector('.product-name').textContent.toLowerCase(); // use text
+        var productName = product.querySelector('.product-name').textContent.toLowerCase();
         var productPrice = parseFloat(product.getAttribute('data-price'));
 
         var matchesSearch = productName.includes(searchTerm);
         var matchesPrice = productPrice >= minPrice && productPrice <= maxPrice;
 
         if (matchesSearch && matchesPrice) {
-            product.style.display = ''; // show
+            product.style.display = 'flex';
             visibleCount++;
         } else {
-            product.style.display = 'none'; // hide
+            product.style.display = 'none';
         }
     });
 
-    if (visibleCount === 0) {
-        productsGrid.style.display = 'none';
-        noResults.style.display = 'block';
-    } else {
-        productsGrid.style.display = 'grid';
-        noResults.style.display = 'none';
-    }
-
-    resultsCount.textContent = 'Showing ' + visibleCount + ' product' + (visibleCount !== 1 ? 's' : '');
+    // Show/Hide product grid & no-results message
+if (visibleCount === 0) {
+    productsGrid.style.display = 'none';
+    noResults.style.display = 'block';
+} else {
+    productsGrid.style.display = 'grid';
+    noResults.style.display = 'none';
 }
 
+
+    // Update results text
+    resultsCount.textContent = 'Showing ' + visibleCount + ' product' + (visibleCount !== 1 ? 's' : '');
+}
 
 function resetFilters() {
     searchInput.value = '';
@@ -678,8 +702,10 @@ function resetFilters() {
     filterProducts();
 }
 
+// MUST be kept — initializes filter on page load
 filterProducts();
 </script>
+
 
 <?php
 include('./includes/footer.php'); ?>

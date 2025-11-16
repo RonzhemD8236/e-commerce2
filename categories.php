@@ -17,7 +17,7 @@ $categories = [
 ];
 
 // If a category is selected, fetch products
-$products = [];
+$products = array();
 if ($selectedCategory) {
     $safeCat = mysqli_real_escape_string($conn, $selectedCategory);
     $sql = "SELECT i.*, s.quantity AS stock 
@@ -40,13 +40,35 @@ if ($selectedCategory) {
    CATEGORIES PAGE STYLES
    ======================================== */
 
-/* Page Wrapper - Add top padding for fixed navbar */
+/* Page Wrapper - Add background image and overlay */
 .categories-page-wrapper {
     width: 100%;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-    min-height: calc(100vh - 140px);
+    background-image: url('uploads/checkout-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: auto;
     padding-top: 40px;
-    padding-bottom: 60px;
+    padding-bottom: 60 px;
+    position: relative;
+
+}
+
+.categories-page-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 0;
+}
+
+.categories-page-wrapper > * {
+    position: relative;
+    z-index: 1;
 }
 
 /* Hero Header Section */
@@ -86,17 +108,19 @@ if ($selectedCategory) {
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 35px;
     margin-top: 30px;
+    padding-bottom: 60px;
+    
 }
 
 /* Category Card */
 .category-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.21);
     padding: 50px 30px;
     border-radius: 20px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     text-decoration: none;
     display: block;
     position: relative;
@@ -126,13 +150,13 @@ if ($selectedCategory) {
 
 .category-card:hover {
     transform: translateY(-12px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     border-color: #4a0080;
 }
 
 .category-icon {
     font-size: 4em;
-    color: #4a0080;
+    color: #9f35ebff;
     margin-bottom: 25px;
     transition: all 0.4s ease;
 }
@@ -145,7 +169,7 @@ if ($selectedCategory) {
 .category-name {
     font-size: 1.5em;
     font-weight: 700;
-    color: #1a0033;
+    color: #e9e9e9ff;
     margin: 0;
     transition: color 0.4s ease;
 }
@@ -156,49 +180,93 @@ if ($selectedCategory) {
 
 /* Products View */
 .products-view {
-    margin-top: 30px;
+    margin-top: 0;
+    padding-top: 60px;
+    padding-bottom: 100px;
 }
 
+/* Back Button - Matching category card style */
 .back-button {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    background: white;
-    color: #1a0033;
-    padding: 12px 25px;
-    border-radius: 12px;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.21);
+    color: #e9e9e9ff;
+    padding: 18px 35px;
+    border-radius: 20px;
     text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-weight: 700;
+    font-size: 1.05em;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.back-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
+    transition: left 0.4s ease;
+    z-index: 0;
+}
+
+.back-button:hover::before {
+    left: 0;
+}
+
+.back-button i,
+.back-button span {
+    position: relative;
+    z-index: 1;
 }
 
 .back-button:hover {
-    background: #4a0080;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border-color: #4a0080;
     color: white;
+}
+
+.back-button i {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover i {
     transform: translateX(-5px);
 }
 
+/* Category Title Box - Matching product card style */
 .category-title {
-    background: white;
-    padding: 30px;
+    background: rgba(255, 255, 255, 0.21);
+    padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     margin-bottom: 30px;
+    text-align: center;
 }
 
 .category-title h1 {
     font-size: 2.5em;
     font-weight: 700;
-    color: #1a0033;
-    margin-bottom: 10px;
+    color: #e9e9e9ff;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .product-count {
-    color: #666;
-    font-size: 1.1em;
-    font-weight: 500;
+    color: #e9e9e9ff;
+    font-size: 1.2em;
+    font-weight: 600;
+    opacity: 0.9;
 }
 
 /* Products Grid */
@@ -206,27 +274,32 @@ if ($selectedCategory) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
+    padding-bottom: 40px;
 }
 
-/* Product Card */
+/* Product Card - Enhanced to match category style */
 .product-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .product-card:hover {
     transform: translateY(-12px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border-color: #4a0080;
 }
 
 .product-image {
     width: 100%;
-    height: 280px;
+    height: 250px;
     object-fit: cover;
     transition: transform 0.5s ease;
 }
@@ -238,51 +311,58 @@ if ($selectedCategory) {
 .product-image-container {
     overflow: hidden;
     background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-    height: 280px;
+    height: 250px;
+    flex-shrink: 0;
 }
 
 .product-info {
-    padding: 25px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .product-title {
-    font-size: 1.1em;
+    font-size: 1.05em;
     font-weight: 700;
     color: #1a0033;
     margin-bottom: 10px;
-    min-height: 50px;
+    height: 48px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.4;
 }
 
 .product-description {
-    font-size: 0.9em;
+    font-size: 0.88em;
     color: #666;
-    margin-bottom: 15px;
-    min-height: 40px;
+    margin-bottom: 12px;
+    height: 38px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.4;
 }
 
 .product-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
+    margin-top: auto;
+    margin-bottom: 12px;
 }
 
 .product-price {
-    font-size: 1.6em;
+    font-size: 1.4em;
     font-weight: 800;
     color: #4a0080;
 }
 
 .product-stock {
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: #666;
 }
 
@@ -294,13 +374,14 @@ if ($selectedCategory) {
 .view-details-btn {
     background: linear-gradient(135deg, #1a0033 0%, #4a0080 100%);
     color: white;
-    padding: 12px 25px;
-    border-radius: 12px;
+    padding: 10px 20px;
+    border-radius: 10px;
     text-align: center;
     font-weight: 700;
-    margin-top: 20px;
+    font-size: 0.95em;
     display: block;
     transition: all 0.3s;
+    margin-top: auto;
 }
 
 .product-card:hover .view-details-btn {
@@ -308,30 +389,38 @@ if ($selectedCategory) {
     box-shadow: 0 6px 20px rgba(74, 0, 128, 0.4);
 }
 
-/* No Products Message */
+/* No Products Message - Matching style */
 .no-products {
-    background: white;
+    background: rgba(255, 255, 255, 0.21);
     padding: 80px 40px;
     border-radius: 20px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .no-products i {
     font-size: 4em;
-    color: #4a0080;
+    color: #9f35ebff;
     margin-bottom: 20px;
 }
 
 .no-products h3 {
     font-size: 1.8em;
-    color: #1a0033;
+    color: #e9e9e9ff;
     margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .no-products p {
-    color: #666;
+    color: #e9e9e9ff;
     font-size: 1.1em;
+    opacity: 0.9;
+}
+
+/* FOOTER FIX - THIS MUST BE OUTSIDE MEDIA QUERIES */
+.footer {
+    margin-top: 0 !important;
 }
 
 /* Responsive Design */
@@ -339,6 +428,9 @@ if ($selectedCategory) {
     .categories-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 25px;
+        margin-top: 30px;
+        padding-bottom: 100px;
+        margin-bottom: 0;
     }
     
     .categories-hero h1 {
@@ -349,6 +441,7 @@ if ($selectedCategory) {
 @media (max-width: 768px) {
     .categories-page-wrapper {
         padding-top: 20px;
+        padding-bottom: 0;
     }
     
     .categories-hero {
@@ -373,6 +466,22 @@ if ($selectedCategory) {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
     }
+    
+    .product-image-container {
+        height: 220px;
+    }
+    
+    .product-image {
+        height: 220px;
+    }
+
+    .category-title {
+        padding: 30px 20px;
+    }
+
+    .category-title h1 {
+        font-size: 2em;
+    }
 }
 
 @media (max-width: 576px) {
@@ -386,6 +495,19 @@ if ($selectedCategory) {
     
     .products-grid {
         grid-template-columns: 1fr;
+    }
+
+    .back-button {
+        padding: 15px 25px;
+        font-size: 1em;
+    }
+
+    .category-title h1 {
+        font-size: 1.75em;
+    }
+
+    .product-count {
+        font-size: 1em;
     }
 }
 </style>
@@ -401,9 +523,9 @@ if ($selectedCategory) {
         <div class="categories-container">
             <div class="categories-grid">
                 <?php foreach ($categories as $catName => $icon): ?>
-                    <a href="?category=<?= urlencode($catName) ?>" class="category-card">
-                        <i class="fas <?= $icon ?> category-icon"></i>
-                        <h4 class="category-name"><?= htmlspecialchars($catName) ?></h4>
+                    <a href="?category=<?php echo urlencode($catName); ?>" class="category-card">
+                        <i class="fas <?php echo $icon; ?> category-icon"></i>
+                        <h4 class="category-name"><?php echo htmlspecialchars($catName); ?></h4>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -413,16 +535,17 @@ if ($selectedCategory) {
         <!-- Products View for Selected Category -->
         <div class="categories-container products-view">
             <a href="categories.php" class="back-button">
-                <i class="fas fa-arrow-left"></i> Back to Categories
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Categories</span>
             </a>
             
             <div class="category-title">
-                <h1><?= htmlspecialchars($selectedCategory) ?></h1>
+                <h1><?php echo htmlspecialchars($selectedCategory); ?></h1>
                 <p class="product-count">
                     <?php if (empty($products)): ?>
                         No products found
                     <?php else: ?>
-                        <?= count($products) ?> product<?= count($products) !== 1 ? 's' : '' ?> available
+                        <?php echo count($products); ?> product<?php echo count($products) !== 1 ? 's' : ''; ?> available
                     <?php endif; ?>
                 </p>
             </div>
@@ -438,14 +561,14 @@ if ($selectedCategory) {
                     <?php foreach ($products as $product): ?>
                         <?php
                         // Handle images
-                        $images = [];
+                        $images = array();
                         if (!empty($product['image_path'])) {
                             $cleanPath = stripslashes($product['image_path']);
                             $decoded = json_decode($cleanPath, true);
                             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                                 $images = $decoded;
                             } else {
-                                $images = [$cleanPath];
+                                $images = array($cleanPath);
                             }
                         }
                         
@@ -456,29 +579,29 @@ if ($selectedCategory) {
                         $inStock = $stock > 0;
                         ?>
                         
-                        <a href="product_details.php?id=<?= $product['item_id'] ?>" class="product-card">
+                        <a href="product_details.php?id=<?php echo $product['item_id']; ?>" class="product-card">
                             <div class="product-image-container">
-                                <img src="<?= htmlspecialchars($firstImage) ?>" 
+                                <img src="<?php echo htmlspecialchars($firstImage); ?>" 
                                      class="product-image" 
-                                     alt="<?= htmlspecialchars($product['description']) ?>"
+                                     alt="<?php echo htmlspecialchars($product['description']); ?>"
                                      onerror="this.src='uploads/default.png'">
                             </div>
                             
                             <div class="product-info">
                                 <h6 class="product-title">
-                                    <?= htmlspecialchars($product['description']) ?>
+                                    <?php echo htmlspecialchars($product['description']); ?>
                                 </h6>
                                 
                                 <?php if (!empty($product['short_description'])): ?>
                                     <p class="product-description">
-                                        <?= htmlspecialchars($product['short_description']) ?>
+                                        <?php echo htmlspecialchars($product['short_description']); ?>
                                     </p>
                                 <?php endif; ?>
                                 
                                 <div class="product-footer">
-                                    <span class="product-price">₱<?= number_format($product['sell_price'], 2) ?></span>
+                                    <span class="product-price">₱<?php echo number_format($product['sell_price'], 2); ?></span>
                                     <?php if ($inStock): ?>
-                                        <small class="product-stock">Stock: <?= $stock ?></small>
+                                        <small class="product-stock">Stock: <?php echo $stock; ?></small>
                                     <?php else: ?>
                                         <small class="product-stock out">Out of Stock</small>
                                     <?php endif; ?>

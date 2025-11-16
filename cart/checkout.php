@@ -1,5 +1,3 @@
-checkout.php
-
 <?php
 session_start();
 include('../includes/header.php');
@@ -38,95 +36,451 @@ $default_shipping = 50; // default delivery fee
 
 ?>
 
-<h1 align="center">Checkout</h1>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-image: url('../uploads/checkout-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .checkout-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px 40px;
+    }
+    
+    .checkout-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px 0;
+    }
+    
+    .checkout-header h1 {
+        color: #bb86fc;
+        font-size: 32px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: 1fr 450px;
+        gap: 40px;
+        align-items: start;
+    }
+    
+    .main-section {
+        background: #2a2a2a;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .order-summary {
+        background: #2a2a2a;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        position: sticky;
+        top: 20px;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #bb86fc;
+        margin: 0 0 20px 0;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #3a3a3a;
+    }
+    
+    .customer-info {
+        background: #1a1a1a;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        border-left: 4px solid #bb86fc;
+    }
+    
+    .customer-info strong {
+        font-size: 16px;
+        color: #e0e0e0;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .customer-info p {
+        margin: 5px 0;
+        color: #b0b0b0;
+        font-size: 14px;
+    }
+    
+    .cart-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 30px;
+    }
+    
+    .cart-table thead {
+        background: #1a1a1a;
+    }
+    
+    .cart-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #bb86fc;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .cart-table td {
+        padding: 20px 15px;
+        border-bottom: 1px solid #3a3a3a;
+        color: #b0b0b0;
+    }
+    
+    .cart-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .product-name {
+        font-weight: 500;
+        color: #e0e0e0;
+    }
+    
+    .option-group {
+        margin-bottom: 30px;
+    }
+    
+    .option-label {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border: 2px solid #3a3a3a;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #1a1a1a;
+        color: #e0e0e0;
+    }
+    
+    .option-label:hover {
+        border-color: #bb86fc;
+        background: #2a1f3a;
+    }
+    
+    .option-label input[type="radio"] {
+        margin-right: 12px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .option-label input[type="radio"]:checked + span {
+        font-weight: 600;
+        color: #bb86fc;
+    }
+    
+    .option-label.selected {
+        border-color: #bb86fc;
+        background: #2a1f3a;
+    }
+    
+    .payment-details {
+        margin-top: 15px;
+        padding: 20px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        border: 1px solid #3a3a3a;
+    }
+    
+    .payment-details h4 {
+        margin: 0 0 20px 0;
+        color: #bb86fc;
+        font-size: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #e0e0e0;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #3a3a3a;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+        background: #2a2a2a;
+        color: #e0e0e0;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #bb86fc;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        color: #b0b0b0;
+        font-size: 15px;
+    }
+    
+    .summary-row.total {
+        border-top: 2px solid #3a3a3a;
+        margin-top: 15px;
+        padding-top: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #bb86fc;
+    }
+    
+    .place-order-btn {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #bb86fc 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(187, 134, 252, 0.3);
+    }
+    
+    .place-order-btn:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        box-shadow: 0 6px 20px rgba(187, 134, 252, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .items-summary {
+        margin-bottom: 20px;
+    }
+    
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        font-size: 14px;
+        color: #b0b0b0;
+        border-bottom: 1px solid #3a3a3a;
+    }
+    
+    .item-row:last-child {
+        border-bottom: none;
+    }
+    
+    .item-name {
+        flex: 1;
+        color: #e0e0e0;
+    }
+    
+    .item-qty {
+        margin: 0 15px;
+        color: #808080;
+    }
+    
+    @media (max-width: 968px) {
+        .checkout-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .order-summary {
+            position: static;
+        }
+    }
+</style>
 
-<!-- Customer Info -->
-<div style="margin:20px 0; padding:10px; border:1px solid #ccc; border-radius:8px;">
-    <strong><?= htmlspecialchars($customer_name) ?></strong> P <?= htmlspecialchars($customer_phone) ?>
-    <br>
-    <address><?= nl2br(htmlspecialchars($customer_address)) ?></address>
+<div class="checkout-container">
+    <div class="checkout-header">
+        <h1>Checkout</h1>
+    </div>
+
+    <form method="POST" action="checkout_process.php" id="checkoutForm">
+        <div class="checkout-layout">
+            <!-- Main Section -->
+            <div class="main-section">
+                <!-- Customer Info -->
+                <h2 class="section-title">Delivery Information</h2>
+                <div class="customer-info">
+                    <strong><?= htmlspecialchars($customer_name) ?></strong>
+                    <p>📞 <?= htmlspecialchars($customer_phone) ?></p>
+                    <p>📍 <?= nl2br(htmlspecialchars($customer_address)) ?></p>
+                </div>
+
+                <!-- Cart Items -->
+                <h2 class="section-title">Order Items</h2>
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($_SESSION['cart_products'] as $itm): 
+                            $subtotal = $itm['item_price'] * $itm['item_qty']; ?>
+                        <tr>
+                            <td class="product-name"><?= htmlspecialchars($itm['item_name']) ?></td>
+                            <td><?= $itm['item_qty'] ?></td>
+                            <td>₱<?= number_format($itm['item_price'],2) ?></td>
+                            <td>₱<?= number_format($subtotal,2) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <!-- Shipping Method -->
+                <h2 class="section-title">Shipping Method</h2>
+                <div class="option-group">
+                    <label class="option-label selected">
+                        <input type="radio" name="shipping_method" value="delivery" checked>
+                        <span>🚚 Standard Delivery (₱50)</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="shipping_method" value="pickup">
+                        <span>🏪 Store Pick-up (Free)</span>
+                    </label>
+                </div>
+
+                <!-- Payment Method -->
+                <h2 class="section-title">Payment Method</h2>
+                <div class="option-group">
+                    <label class="option-label selected">
+                        <input type="radio" name="payment_method" value="cod" checked>
+                        <span>💵 Cash on Delivery</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="payment_method" value="card">
+                        <span>💳 Credit/Debit Card</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="payment_method" value="ewallet">
+                        <span>📱 E-Wallet</span>
+                    </label>
+                </div>
+
+                <div id="cardDetails" class="payment-details" style="display:none;">
+                    <h4>Card Details</h4>
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" name="card_number" maxlength="16" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="month" name="card_expiry">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" name="card_cvv" maxlength="4" placeholder="123">
+                    </div>
+                    <div class="form-group">
+                        <label>Name on Card</label>
+                        <input type="text" name="card_name" placeholder="John Doe">
+                    </div>
+                </div>
+
+                <div id="ewalletDetails" class="payment-details" style="display:none;">
+                    <h4>E-Wallet Details</h4>
+                    <div class="form-group">
+                        <label>Wallet ID</label>
+                        <input type="text" name="ewallet_id" placeholder="Enter your wallet ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Name</label>
+                        <input type="text" name="ewallet_name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="text" name="ewallet_number" placeholder="09123456789">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="order-summary">
+                <h2 class="section-title">Order Summary</h2>
+                
+                <div class="items-summary">
+                    <?php foreach ($_SESSION['cart_products'] as $itm): ?>
+                    <div class="item-row">
+                        <span class="item-name"><?= htmlspecialchars($itm['item_name']) ?></span>
+                        <span class="item-qty">x<?= $itm['item_qty'] ?></span>
+                        <span>₱<?= number_format($itm['item_price'] * $itm['item_qty'], 2) ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₱<span id="merchTotal"><?= number_format($merchandise_total,2) ?></span></span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping Fee</span>
+                    <span>₱<span id="shipFee"><?= number_format($default_shipping,2) ?></span></span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>₱<span id="totalPayment"><?= number_format($merchandise_total + $default_shipping,2) ?></span></span>
+                </div>
+
+                <button type="submit" class="place-order-btn">Place Order</button>
+            </div>
+        </div>
+
+        <!-- Pass customer ID -->
+        <input type="hidden" name="customer_id" value="<?= $customer_id ?>">
+    </form>
 </div>
-
-<!-- Checkout Form -->
-<form method="POST" action="checkout_process.php" id="checkoutForm">
-    <!-- Cart Items -->
-    <h3>Products in Your Cart</h3>
-    <table width="100%" cellpadding="6" cellspacing="0" border="1" style="border-collapse:collapse;">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($_SESSION['cart_products'] as $itm): 
-                $subtotal = $itm['item_price'] * $itm['item_qty']; ?>
-            <tr>
-                <td><?= htmlspecialchars($itm['item_name']) ?></td>
-                <td><?= $itm['item_qty'] ?></td>
-                <td>₱<?= number_format($itm['item_price'],2) ?></td>
-                <td>₱<?= number_format($subtotal,2) ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <br>
-
-    <!-- Shipping Option -->
-    <h3>Shipping Method</h3>
-    <label><input type="radio" name="shipping_method" value="delivery" checked> Delivery (₱50)</label><br>
-    <label><input type="radio" name="shipping_method" value="pickup"> Pick-up (₱0)</label>
-
-    <br><br>
-
-    <!-- Payment Method -->
-    <h3>Payment Method</h3>
-    <label><input type="radio" name="payment_method" value="cod" checked> Cash on Delivery</label><br>
-    <label><input type="radio" name="payment_method" value="card"> Credit/Debit Card</label><br>
-    <label><input type="radio" name="payment_method" value="ewallet"> E-Wallet</label>
-
-    <div id="cardDetails" style="display:none; margin-top:10px; border:1px solid #ccc; padding:10px; border-radius:8px;">
-        <h4>Card Details</h4>
-        <label>Card Number: <input type="text" name="card_number" maxlength="16"></label><br>
-        <label>Expiry Date: <input type="month" name="card_expiry"></label><br>
-        <label>CVV: <input type="text" name="card_cvv" maxlength="4"></label><br>
-        <label>Name on Card: <input type="text" name="card_name"></label>
-    </div>
-
-    <div id="ewalletDetails" style="display:none; margin-top:10px; border:1px solid #ccc; padding:10px; border-radius:8px;">
-        <h4>E-Wallet Details</h4>
-        <label>Wallet ID: <input type="text" name="ewallet_id"></label><br>
-        <label>Name: <input type="text" name="ewallet_name"></label><br>
-        <label>Number: <input type="text" name="ewallet_number"></label>
-    </div>
-
-    <br>
-
-    <!-- Totals -->
-    <div style="margin-top:20px; padding:10px; border:1px solid #ccc; border-radius:8px;">
-        <p>Merchandise Subtotal: ₱<span id="merchTotal"><?= number_format($merchandise_total,2) ?></span></p>
-        <p>Shipping Fee: ₱<span id="shipFee"><?= number_format($default_shipping,2) ?></span></p>
-        <hr>
-        <p><strong>Total Payment: ₱<span id="totalPayment"><?= number_format($merchandise_total + $default_shipping,2) ?></span></strong></p>
-    </div>
-
-    <!-- Place Order -->
-    <div style="margin-top:20px; padding:15px; background:#f1f1f1; border-radius:8px; text-align:center;">
-        <button type="submit" style="font-size:18px; padding:10px 30px;">Place Order</button>
-    </div>
-
-    <!-- Pass customer ID -->
-    <input type="hidden" name="customer_id" value="<?= $customer_id ?>">
-</form>
 
 <script>
 const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
 const cardDiv = document.getElementById('cardDetails');
 const walletDiv = document.getElementById('ewalletDetails');
 const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
+const allOptions = document.querySelectorAll('.option-label');
+
+// Handle option selection styling
+allOptions.forEach(label => {
+    const radio = label.querySelector('input[type="radio"]');
+    radio.addEventListener('change', () => {
+        // Remove selected class from all labels in the same group
+        const groupName = radio.name;
+        document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+            r.closest('.option-label').classList.remove('selected');
+        });
+        // Add selected class to current label
+        label.classList.add('selected');
+    });
+});
 
 paymentRadios.forEach(r => {
     r.addEventListener('change', ()=> {
